@@ -1,5 +1,5 @@
 import {enemies,heroes,spells,type EnemyId} from './data';
-import {maxHp,maxMp,type Member,type State} from './state';
+import {maxHp,maxMp,type State} from './state';
 export type Command='attack'|'magic'|'item'|'guard';
 export class Battle {
  hp:number;turn=1;guard=new Set<number>();
