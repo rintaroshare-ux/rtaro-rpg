@@ -1,1 +1,22 @@
-{"name":"r-taro-seafood-rpg","version":"1.0.0","type":"module","scripts":{"dev":"vite --host 0.0.0.0","build":"tsc --noEmit && vite build","preview":"vite preview --host 0.0.0.0","test":"tsx --test tests/*.test.ts"},"dependencies":{"phaser":"^3.90.0"},"devDependencies":{"typescript":"^5.8.3","vite":"^6.3.5","tsx":"^4.19.4","@playwright/test":"^1.51.1"}}
+{
+  "name": "r-taro-seafood-rpg",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "tsx --test tests/*.test.ts",
+    "test:browser": "node tests/browser/graphics.mjs",
+    "test:pages": "node tests/browser/pages.mjs"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "tsx": "^4.19.4",
+    "@playwright/test": "^1.51.1"
+  }
+}
