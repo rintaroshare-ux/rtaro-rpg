@@ -1,3 +1,4 @@
+import type {MobileMenu} from '../input/mobileMenu';
 import Phaser from 'phaser';
 import {music} from '../audio/music';
 import {touchDirections} from '../input/touch';
@@ -25,7 +26,12 @@ export class Field extends Phaser.Scene{
  const top=panel(this,8,7,624,47).setScrollFactor(0);top.setAlpha(.95);this.hud=label(this,20,15,'',11).setScrollFactor(0);this.hint=label(this,320,337,'',10).setOrigin(.5).setScrollFactor(0).setShadow(1,1,'#183746',2);this.keys=this.input.keyboard!.addKeys('UP,DOWN,LEFT,RIGHT,W,A,S,D') as Record<string,Phaser.Input.Keyboard.Key>;bind(this,e=>this.key(e));this.updateHud();
  if(data?.notice)this.dialog([data.notice]);else if(!state.flags.includes('intro')){state.flags.push('intro');this.dialog(['第１章「武蔵小杉のぬいぐるみ大騒動」','ピロン♪ パパからメッセージが届いた！','パパ：ノルウェーのお仕事、もうひとふんばり。\nR太郎、元気にしているかい？','パパ：ああ、日本の海鮮丼が食べたいなあ……。','R太郎：ぼくが届けに行く！ まずはママに話そう。'])}
  }
- saveAnywhere():boolean{if(!this.changing){state.x=this.player.x;state.y=this.player.y;}state.resumeBattle=null;return save();}
+ saveAnywhere(automatic=false):boolean{if(!this.changing){state.x=this.player.x;state.y=this.player.y;}state.resumeBattle=null;return save(automatic);}
+ getMobileMenu():MobileMenu|null{
+  if(this.mode==='talk')return {key:'Field:talk',kind:'dialogue',title:'会話',description:this.lines[0],actions:[{id:'continue',label:this.lines.length>1?'つぎへ':'閉じる',run:()=>this.next()}]};
+  if(this.mode==='menu')return {key:'Field:menu',kind:'screen',title:'旅のメニュー',description:`所持金 ${state.money} G / ${state.atbMode==='wait'?'ウェイト':'アクティブ'}`,back:()=>this.key(new KeyboardEvent('keydown',{code:'Escape'})),actions:['海鮮丼で全員を回復','通常セーブに保存','ロード','ATBモード切替','タイトルへ','どうぐ・装備'].map((name,i)=>({id:`field-${i}`,label:name,selected:i===this.menuIndex,run:()=>{this.menuIndex=i;this.menuKey(new KeyboardEvent('keydown',{code:'Enter'}));}}))};
+  return null;
+ }
  private updateHud(){this.hud.setText(`${maps[state.map].name}  [${this.danger()?'危険地帯':'安全地帯'}]  /  ${objective()}\n${state.party.map(m=>`${heroes[m.id].name} ${m.hp}/${maxHp(m)}`).join('   ')}`)}
  update(_time:number,delta:number){this.elapsed+=delta;if(this.elapsed>60000){state.minutes++;this.elapsed-=60000}if(!this.player)return;const moved=Math.hypot(this.player.x-this.lastPosition.x,this.player.y-this.lastPosition.y);this.lastPosition={x:this.player.x,y:this.player.y};this.player.setVelocity(0);if(this.mode!=='walk'||this.changing){this.player.anims.stop();this.player.setFrame(idleFrame(this.facing));this.partyView.stop();return;}let x=0,y=0;if(this.keys.LEFT.isDown||this.keys.A.isDown||touchDirections.left)x--;if(this.keys.RIGHT.isDown||this.keys.D.isDown||touchDirections.right)x++;if(this.keys.UP.isDown||this.keys.W.isDown||touchDirections.up)y--;if(this.keys.DOWN.isDown||this.keys.S.isDown||touchDirections.down)y++;this.player.setVelocity(x*SPEED,y*SPEED);if(x&&y)this.player.body?.velocity.normalize().scale(SPEED);this.player.setDepth(this.player.y);if(x||y){this.facing=x<0?'left':x>0?'right':y<0?'up':'down';this.player.play(`rintaro:walk:${this.facing}`,true);}else{this.player.anims.stop();this.player.setFrame(idleFrame(this.facing));}this.partyView.update(this.player,delta);state.x=this.player.x;state.y=this.player.y;const p=this.nearby();this.hint.setText(p?`Z / ENTER  ${p.name}と話す`:this.danger()?'危険地帯：草地でランダム戦闘 / X メニュー':'安全地帯 / X メニュー / 道を東へ →');if(this.player.x>920&&x>0)this.travel(1);if(this.player.x<40&&x<0)this.travel(-1);if(!this.changing&&this.meter.move(moved,this.danger()))this.startBattle(randomFormation(state.party.length));this.updateHud()}
  private nearby(){return maps[state.map].people.find(p=>(!p.join||!state.party.some(m=>m.id===p.join))&&!(p.event==='boss'&&state.flags.includes('clear'))&&Phaser.Math.Distance.Between(p.x,p.y,this.player.x,this.player.y)<55)}

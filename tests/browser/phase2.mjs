@@ -4,7 +4,7 @@ import {existsSync,mkdirSync} from 'node:fs';
 mkdirSync('diagnostics',{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||(existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox']});
 try{
- const context=await browser.newContext({viewport:{width:915,height:412},screen:{width:915,height:412},isMobile:true,hasTouch:true});const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const context=await browser.newContext({viewport:{width:915,height:412},screen:{width:915,height:412},isMobile:true,hasTouch:true});const page=await context.newPage();await page.addInitScript(()=>localStorage.setItem('rtaro.mobile.menu','canvas'));const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/src/main.ts*',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text()).replace('new Phaser.Game(','window.__testGame=new Phaser.Game(')});});
  const open=async()=>{await page.goto(process.env.GAME_URL||'http://127.0.0.1:5173');await page.waitForFunction(()=>window.__testGame?.scene.isActive('Title'));};
  const frame=async()=>{const f=await page.evaluate(()=>window.__testGame.loop.frame);await page.waitForFunction(f=>window.__testGame.loop.frame>=f+2,f);};

@@ -1,6 +1,6 @@
 {
   "name": "r-taro-seafood-rpg",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
@@ -10,7 +10,8 @@
     "test:browser": "node tests/browser/graphics.mjs",
     "test:pages": "node tests/browser/pages.mjs",
     "test:presentation": "node tests/browser/formation-audio.mjs",
-    "test:phase2": "node tests/browser/phase2.mjs"
+    "test:phase2": "node tests/browser/phase2.mjs",
+    "test:mobile": "node tests/browser/phase3.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0"

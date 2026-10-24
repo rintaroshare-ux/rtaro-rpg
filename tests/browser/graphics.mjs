@@ -3,3 +3,4 @@ await import('./phase1.mjs');
 await import('./recovery.mjs');
 await import('./formation-audio.mjs');
 await import('./phase2.mjs');
+await import('./phase3.mjs');

@@ -1,3 +1,4 @@
+import type {MobileMenu,MobileAction} from '../input/mobileMenu';
 import Phaser from 'phaser';
 import {state,save} from '../game/state';
 import {stats} from '../game/economy/stats';
@@ -11,7 +12,23 @@ export class Inventory extends Phaser.Scene{
  private tab:'items'|'equipment'='items';private hero=0;private slot=0;private index=0;private notice='Q/E：仲間 / T：道具・装備 / ↑↓：品物 / ←→：装備枠';private ui:Phaser.GameObjects.GameObject[]=[];
  constructor(){super('Inventory')}
  create():void{this.tab='items';this.hero=0;this.slot=0;this.index=0;this.ui=[];this.notice='道具を選び、使う仲間を選んで決定。装備は「装備」タブから。';this.draw();bind(this,e=>this.key(e));}
- saveAnywhere():boolean{return save();}
+ saveAnywhere(automatic=false):boolean{return save(automatic);}
+ getMobileMenu():MobileMenu{
+  const m=state.party[this.hero],value=stats(m);
+  const tabs:MobileAction[]=[{id:'items',label:'道具',selected:this.tab==='items',run:()=>{this.tab='items';this.index=0;this.draw();}},{id:'equipment',label:'装備',selected:this.tab==='equipment',run:()=>{this.tab='equipment';this.index=0;this.draw();}},...state.party.map((t,i)=>({id:`hero-${i}`,label:heroes[t.id].name,selected:this.hero===i,run:()=>{this.hero=i;this.index=0;this.draw();}}))];
+  const actions:MobileAction[]=[];
+  if(this.tab==='items'){
+   ITEMS.forEach((id,i)=>actions.push({id:`item-${id}`,label:consumables[id].name,detail:`所持 ${count(state,id)} / ${consumables[id].description}`,selected:this.index===i,run:()=>{this.index=i;this.draw();}}));
+   actions.push({id:'use',label:`${heroes[m.id].name}に使う`,run:()=>this.apply()});
+  }else{
+   SLOTS.forEach((slot,i)=>tabs.push({id:`slot-${slot}`,label:`${slotNames[slot]}：${m.equipment[slot]?gear[m.equipment[slot]!].name:'なし'}`,selected:this.slot===i,run:()=>{this.slot=i;this.index=0;this.draw();}}));
+   this.candidates().forEach((id,i)=>actions.push({id:`gear-${id??'none'}`,label:id?gear[id].name:'装備を外す',selected:this.index===i,run:()=>{this.index=i;this.draw();}}));
+   actions.push({id:'equip',label:'装備を変更する',run:()=>this.apply()});
+  }
+  return {key:`Inventory:${this.tab}:${this.hero}:${this.slot}`,kind:'screen',title:'どうぐ・装備',description:`${heroes[m.id].name} / HP ${m.hp}/${value.hp} MP ${m.mp}/${value.mp}
+攻撃 ${value.attack} 魔法 ${value.magic} 防御 ${value.defense} 速さ ${value.speed}
+${this.notice}`,back:()=>this.close(),tabs,actions};
+ }
  private candidates():(GearId|null)[]{const m=state.party[this.hero];return [null,...(Object.keys(gear) as GearId[]).filter(id=>{const def=gear[id] as Gear;return def.slot===SLOTS[this.slot]&&def.allowed.includes(m.id)&&count(state,id)>0;})];}
  private button(x:number,y:number,w:number,h:number,text:string,fn:()=>void,selected=false):void{this.ui.push(...uiButton(this,x,y,w,h,text,fn,selected));}
  private draw():void{

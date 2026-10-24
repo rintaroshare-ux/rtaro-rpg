@@ -3,6 +3,7 @@ import './style.css';
 import {setupAudioControls} from './audio/music';
 import {Shop} from './scenes/Shop';
 import {Inventory} from './scenes/Inventory';
+import {setupMobileViewport} from './input/mobileViewport';
 import {setupSaveControls} from './input/saveControls';
 import {setupTouchControls} from './input/touch';
 setupAudioControls();
@@ -16,3 +17,5 @@ const game=new Phaser.Game({type:Phaser.AUTO,parent:'game',width:640,height:360,
 setupTouchControls(game);
 
 setupSaveControls(game);
+
+setupMobileViewport(game);

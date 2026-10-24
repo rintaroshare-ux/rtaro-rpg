@@ -1,7 +1,7 @@
 import {stats} from './economy/stats';
 import {emptyEquipment,isGear,gear,type Gear,type Equipment,type GearId} from './economy/catalog';
 import {readBattleSnapshot,type BattleSnapshot} from './combat/snapshot';
-import { heroes, order, SAVE_KEY, PREVIOUS_SAVE_KEY, LEGACY_SAVE_KEY, type HeroId, type MapId } from './data';
+import { heroes, order, SAVE_KEY, AUTO_SAVE_KEY, PREVIOUS_SAVE_KEY, LEGACY_SAVE_KEY, type HeroId, type MapId } from './data';
 export interface Member {id:HeroId;hp:number;mp:number;level:number;xp:number;equipment:Equipment}
 export type AtbMode = 'wait' | 'active';
 export interface State {version:3;map:MapId;x:number;y:number;party:Member[];flags:string[];defeated:string[];bowls:number;minutes:number;money:number;inventory:{revive:number;ether:number;deluxe:number};atbMode:AtbMode;gearBag:Partial<Record<GearId,number>>;resumeBattle:BattleSnapshot|null}
@@ -12,10 +12,10 @@ export const fresh=():State=>({version:3,map:'home',x:260,y:330,party:[member('r
 export let state:State=fresh();
 export function reset():void{state=fresh()}
 export function restore():void{state.party.forEach(m=>{m.hp=maxHp(m);m.mp=maxMp(m)})}
-export function save():boolean{try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));return true}catch{return false}}
-export function load():boolean{
+export function save(automatic=false):boolean{try{localStorage.setItem(automatic?AUTO_SAVE_KEY:SAVE_KEY,JSON.stringify(automatic?{...state,savedAt:Date.now()}:state));return true}catch{return false}}
+export function load(source:'manual'|'auto'='manual'):boolean{
   try{
-    const saved=localStorage.getItem(SAVE_KEY)??localStorage.getItem(PREVIOUS_SAVE_KEY)??localStorage.getItem(LEGACY_SAVE_KEY);
+    const saved=source==='auto'?localStorage.getItem(AUTO_SAVE_KEY):localStorage.getItem(SAVE_KEY)??localStorage.getItem(PREVIOUS_SAVE_KEY)??localStorage.getItem(LEGACY_SAVE_KEY);
     const candidate=migrateSave(JSON.parse(saved??'null'));
     if(!candidate)return false;
     state=candidate;return true;

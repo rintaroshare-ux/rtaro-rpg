@@ -6,7 +6,7 @@ const base=process.env.GAME_URL||'http://127.0.0.1:5173';
 const context=await browser.newContext({viewport:{width:915,height:412},screen:{width:915,height:412},isMobile:true,hasTouch:true,deviceScaleFactor:1});
 const errors=[];
 try{
- const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
+ const page=await context.newPage();await page.addInitScript(()=>localStorage.setItem('rtaro.mobile.menu','canvas'));page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/src/main.ts*',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text()).replace('new Phaser.Game(','window.__testGame=new Phaser.Game(')});});
  await page.goto(base);await page.waitForFunction(()=>window.__testGame?.scene.isActive('Title'));
  assert.equal(await page.locator('#touch-controls').isVisible(),true);

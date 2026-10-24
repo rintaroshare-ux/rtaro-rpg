@@ -1,3 +1,4 @@
+import type {MobileMenu} from '../input/mobileMenu';
 import Phaser from 'phaser';
 import {state,save} from '../game/state';
 import {shopCatalog,stockDefinition,isGear,gear,consumables,type StockId,type Gear} from '../game/economy/catalog';
@@ -9,7 +10,15 @@ export class Shop extends Phaser.Scene{
  private kind:'items'|'equipment'='items';private side:'buy'|'sell'='buy';private index=0;private quantity=1;private notice='↑↓ 選択 / ←→ 売買 / Q・E 個数 / 決定で取引';private ui:Phaser.GameObjects.GameObject[]=[];
  constructor(){super('Shop')}
  create(data:{kind?:'items'|'equipment'}={}):void{this.kind=data.kind??'items';this.side='buy';this.index=0;this.quantity=1;this.notice='いらっしゃい！ 装備は購入後「どうぐ・装備」で身につけられます。';this.ui=[];this.draw();bind(this,e=>this.key(e));}
- saveAnywhere():boolean{return save();}
+ saveAnywhere(automatic=false):boolean{return save(automatic);}
+ getMobileMenu():MobileMenu{
+  const entries=this.entries(),page=Math.floor(this.index/4),id=entries[this.index];
+  const actions=entries.slice(page*4,page*4+4).map((stock,i)=>{const def=stockDefinition(stock),n=page*4+i;return {id:`stock-${stock}`,label:def.name,detail:`${this.side==='buy'?def.price:Math.floor(def.price/2)} G / 所持 ${count(state,stock)}`,selected:n===this.index,run:()=>{this.index=n;this.draw();}};});
+  if(id){const def=stockDefinition(id),cost=(this.side==='buy'?def.price:Math.floor(def.price/2))*this.quantity;actions.push({id:'trade',label:`${this.side==='buy'?'購入':'売却'}する：${def.name} ×${this.quantity}`,detail:`合計 ${cost} G`,selected:false,run:()=>this.transact()});}
+  const detail=id?(isGear(id)?Object.entries((gear[id] as Gear).bonuses).map(([k,n])=>`${k} +${n}`).join(' / '):consumables[id].description):'売れる品はありません。';
+  return {key:`Shop:${this.kind}:${this.side}`,kind:'screen',title:this.kind==='items'?'ふくふく海鮮店':'こすぎ旅道具店',description:`${state.money} G / ${this.notice}
+${detail}`,back:()=>this.close(),tabs:[{id:'buy',label:'買う',selected:this.side==='buy',run:()=>{this.side='buy';this.index=0;this.draw();}},{id:'sell',label:'売る',selected:this.side==='sell',run:()=>{this.side='sell';this.index=0;this.draw();}},{id:'quantity',label:`個数 ×${this.quantity}`,run:()=>{this.quantity=this.quantity===1?5:1;this.draw();}},{id:'previous',label:'前の頁',run:()=>{this.index=Math.max(0,(page-1)*4);this.draw();}},{id:'next',label:'次の頁',run:()=>{this.index=Math.min(Math.max(0,entries.length-1),(page+1)*4);this.draw();}}],actions};
+ }
  private entries():StockId[]{return this.side==='buy'?shopCatalog[this.kind]:shopCatalog[this.kind].filter(id=>count(state,id)>0);}
  private button(x:number,y:number,w:number,h:number,text:string,fn:()=>void,selected=false):void{this.ui.push(...uiButton(this,x,y,w,h,text,fn,selected));}
  private draw():void{

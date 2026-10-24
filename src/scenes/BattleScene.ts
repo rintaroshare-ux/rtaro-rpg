@@ -1,3 +1,4 @@
+import type {MobileMenu} from '../input/mobileMenu';
 import Phaser from 'phaser';
 import {heroes,spells,type EnemyId} from '../game/data';
 import {Battle,type Command,type BattleEvent} from '../game/battle';
@@ -84,7 +85,15 @@ export class BattleScene extends Phaser.Scene{
     if(event){this.present(event);return;}
     this.chooseActor();this.refresh();
   }
-  saveAnywhere():boolean{state.resumeBattle=this.battle.snapshot();return save();}
+  saveAnywhere(automatic=false):boolean{state.resumeBattle=this.battle.snapshot();return save(automatic);}
+  getMobileMenu():MobileMenu|null{
+    if(this.result)return {key:'Battle:result',kind:'commands',title:this.battle.outcome==='win'?'勝利！':this.battle.outcome==='lose'?'もう一度、挑もう':'逃げきった！',description:this.log.text,actions:[{id:'continue',label:'つづける',run:()=>this.finish()}]};
+    if(this.busy||this.actor===null)return null;
+    const m=state.party[this.actor],spell=spells[heroes[m.id].spell];
+    const names=this.selection==='command'?['攻撃',spell.name,'アイテム','防御','逃げる']:this.selection==='item'?ITEMS.map(id=>battleItems[id].name):this.selection==='ally'?state.party.map(t=>heroes[t.id].name):this.battle.foes.map(f=>combatEnemies[f.kind].name);
+    const selected=this.selection==='command'?this.command:this.selection==='item'?this.itemIndex:this.target;
+    return {key:`Battle:${this.actor}:${this.selection}`,kind:'commands',title:`${heroes[m.id].name}の${this.selection==='command'?'行動':'対象・道具選択'}`,description:`HP ${m.hp}/${maxHp(m)} / MP ${m.mp}/${maxMp(m)}`,back:this.selection==='command'?undefined:()=>this.key(new KeyboardEvent('keydown',{code:'Escape'})),actions:names.map((name,i)=>({id:`choice-${i}`,label:name,selected:selected===i,disabled:this.selection==='enemy'&&this.battle.foes[i].hp===0,detail:this.selection==='command'?(i===1?`MP ${spell.cost}`:i===3?'軽減・MP+3':undefined):this.selection==='item'?`所持 ${this.battle.count(ITEMS[i])}`:this.selection==='ally'?`HP ${state.party[i].hp}/${maxHp(state.party[i])}`:`HP ${this.battle.foes[i].hp}/${combatEnemies[this.battle.foes[i].kind].hp}`,run:()=>this.tapRow(i)}))};
+  }
   private chooseActor():void{
     const ready=this.battle.readyHeroes;
     if(this.actor===null||!ready.includes(this.actor)){

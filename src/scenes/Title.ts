@@ -1,3 +1,4 @@
+import type {MobileMenu} from '../input/mobileMenu';
 import Phaser from 'phaser';
 import {music} from '../audio/music';
 import { faceDown } from '../graphics/assets';
@@ -46,16 +47,20 @@ export class Title extends Phaser.Scene {
     bind(this, e => {
       if (e.repeat) return;
       if (['ArrowUp', 'ArrowDown', 'KeyW', 'KeyS'].includes(e.code)) {
-        this.choice = 1 - this.choice; this.notice.setText(''); this.render();
+        this.choice = (this.choice + (['ArrowUp','KeyW'].includes(e.code)?2:1)) % 3; this.notice.setText(''); this.render();
       }
       if (!confirmKey(e)) return;
       if (this.choice === 0) { reset(); this.scene.start('Field'); }
-      else if (load()) this.scene.start(state.resumeBattle ? 'Battle' : state.flags.includes('clear') ? 'Clear' : 'Field');
+      else if (load(this.choice===2?'auto':'manual')) this.scene.start(state.resumeBattle ? 'Battle' : state.flags.includes('clear') ? 'Clear' : 'Field');
       else this.notice.setText('セーブデータがありません。「はじめから」を選んでください。');
     });
   }
 
+  getMobileMenu():MobileMenu{
+    const names=['はじめから','つづきから','中断から'];
+    return {key:'Title',kind:'commands',title:'冒険をはじめる',description:this.notice.text||undefined,actions:names.map((name,i)=>({id:`title-${i}`,label:name,detail:i===1?'通常セーブ':i===2?'アプリ切替時の自動保存':undefined,selected:this.choice===i,run:()=>{this.choice=i;this.render();this.input.keyboard?.emit('keydown',new KeyboardEvent('keydown',{code:'Enter'}));}}))};
+  }
   private render(): void {
-    this.options.setText(`${this.choice === 0 ? '>' : '　'} はじめから\n${this.choice === 1 ? '>' : '　'} つづきから`);
+    this.options.setText(`${this.choice === 0 ? '>' : '　'} はじめから\n${this.choice === 1 ? '>' : '　'} つづきから\n${this.choice === 2 ? '>' : '　'} 中断から（自動保存）`);
   }
 }

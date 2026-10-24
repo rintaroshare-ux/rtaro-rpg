@@ -9,7 +9,7 @@ class Music {
  private timer:ReturnType<typeof setInterval>|null=null;
  private nextTime=0;private step=0;private noise:AudioBuffer|null=null;
  private desired:TrackId='title';private muted=false;private volume=.4;
- private finished=false;
+ private paused=false;private finished=false;
  private initialized=false;private unavailable=false;
  get track():TrackId{return this.desired;}
  get contextState():string{return this.context?.state??'locked';}
@@ -24,7 +24,7 @@ class Music {
   document.addEventListener('visibilitychange',()=>{if(document.hidden){this.stopTransport();void this.context?.suspend().catch(()=>{});}else if(!this.muted)void this.unlock();});
  }
  async unlock():Promise<void>{
-  if(this.unavailable||this.muted)return;
+  if(this.unavailable||this.muted||this.paused)return;
   try{
    if(!this.context){
     const Context=window.AudioContext;
@@ -36,15 +36,16 @@ class Music {
     for(let i=0;i<samples.length;i++){seed=(seed*1664525+1013904223)>>>0;samples[i]=(seed/4294967296*2-1)*(1-i/samples.length);}
    }
    await this.context.resume();
-   if(!this.muted&&!document.hidden&&!this.timer&&!this.finished&&this.context.state==='running')this.startTransport();
+   if(!this.muted&&!this.paused&&!document.hidden&&!this.timer&&!this.finished&&this.context.state==='running')this.startTransport();
    this.notify();
   }catch{this.unavailable=true;this.stopTransport();this.notify();}
  }
- setTrack(track:TrackId):void{if(track===this.desired)return;this.desired=track;this.finished=false;this.stopTransport();if(this.context?.state==='running'&&!this.muted&&!document.hidden)this.startTransport();this.notify();}
+ setTrack(track:TrackId):void{if(track===this.desired)return;this.desired=track;this.finished=false;this.stopTransport();if(this.context?.state==='running'&&!this.muted&&!this.paused&&!document.hidden)this.startTransport();this.notify();}
  async toggle():Promise<void>{
   if(!this.context&&!this.unavailable){this.muted=false;this.persist();await this.unlock();return;}
   this.muted=!this.muted;if(!this.muted)this.finished=false;this.persist();if(this.muted)this.stopTransport();else await this.unlock();this.notify();
  }
+ setPaused(value:boolean):void{this.paused=value;if(value){this.stopTransport();void this.context?.suspend().catch(()=>{});}else void this.unlock();this.notify();}
  setVolume(value:number):void{this.volume=Math.max(0,Math.min(1,Number.isFinite(value)?value:.4));if(this.master&&this.context)this.master.gain.setTargetAtTime(this.volume*.55,this.context.currentTime,.03);this.persist();this.notify();}
  private persist():void{try{localStorage.setItem(PREF_KEY,JSON.stringify({enabled:!this.muted,volume:this.volume}));}catch{/* Game save is separate. */}}
  private notify():void{window.dispatchEvent(new Event('rtaro-audio'));}

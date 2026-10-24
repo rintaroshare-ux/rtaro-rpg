@@ -1,4 +1,5 @@
 export const WIDTH=640, HEIGHT=360, SPEED=115, SAVE_KEY='rintaro.chapter1.v3';
+export const AUTO_SAVE_KEY='rintaro.chapter1.autosave.v3';
 export const PREVIOUS_SAVE_KEY='rintaro.chapter1.v2';
 export const LEGACY_SAVE_KEY='rintaro.chapter1.v1';
 export type HeroId='rintaro'|'marmot'|'fugu'|'vanilla';
