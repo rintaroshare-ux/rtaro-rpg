@@ -1,0 +1,347 @@
+[
+  {
+    "id": "title",
+    "bpm": 92,
+    "tonic": 60,
+    "minor": false,
+    "instrument": 11,
+    "motif": [
+      0,
+      2,
+      4,
+      6,
+      4,
+      1,
+      3,
+      2
+    ],
+    "progression": [
+      0,
+      5,
+      3,
+      4
+    ]
+  },
+  {
+    "id": "field",
+    "bpm": 112,
+    "tonic": 62,
+    "minor": false,
+    "instrument": 73,
+    "motif": [
+      0,
+      1,
+      4,
+      2,
+      5,
+      4,
+      1,
+      0
+    ],
+    "progression": [
+      0,
+      3,
+      1,
+      4
+    ]
+  },
+  {
+    "id": "airport",
+    "bpm": 120,
+    "tonic": 65,
+    "minor": false,
+    "instrument": 10,
+    "motif": [
+      2,
+      4,
+      3,
+      1,
+      0,
+      2,
+      5,
+      4
+    ],
+    "progression": [
+      0,
+      4,
+      5,
+      3
+    ]
+  },
+  {
+    "id": "sky",
+    "bpm": 108,
+    "tonic": 67,
+    "minor": false,
+    "instrument": 73,
+    "motif": [
+      4,
+      6,
+      7,
+      5,
+      2,
+      4,
+      1,
+      3
+    ],
+    "progression": [
+      0,
+      2,
+      3,
+      4
+    ]
+  },
+  {
+    "id": "oslo",
+    "bpm": 84,
+    "tonic": 62,
+    "minor": false,
+    "instrument": 46,
+    "motif": [
+      0,
+      4,
+      2,
+      1,
+      5,
+      3,
+      2,
+      0
+    ],
+    "progression": [
+      0,
+      5,
+      1,
+      4
+    ]
+  },
+  {
+    "id": "office",
+    "bpm": 104,
+    "tonic": 57,
+    "minor": true,
+    "instrument": 11,
+    "motif": [
+      0,
+      2,
+      1,
+      4,
+      3,
+      5,
+      2,
+      1
+    ],
+    "progression": [
+      0,
+      3,
+      5,
+      4
+    ]
+  },
+  {
+    "id": "battle",
+    "bpm": 152,
+    "tonic": 62,
+    "minor": true,
+    "instrument": 80,
+    "motif": [
+      0,
+      0,
+      2,
+      4,
+      3,
+      1,
+      5,
+      4
+    ],
+    "progression": [
+      0,
+      5,
+      3,
+      4
+    ]
+  },
+  {
+    "id": "elite",
+    "bpm": 144,
+    "tonic": 64,
+    "minor": true,
+    "instrument": 56,
+    "motif": [
+      4,
+      2,
+      0,
+      3,
+      1,
+      5,
+      4,
+      6
+    ],
+    "progression": [
+      0,
+      2,
+      5,
+      4
+    ]
+  },
+  {
+    "id": "boss",
+    "bpm": 156,
+    "tonic": 59,
+    "minor": true,
+    "instrument": 60,
+    "motif": [
+      0,
+      4,
+      1,
+      5,
+      2,
+      6,
+      3,
+      4
+    ],
+    "progression": [
+      0,
+      5,
+      1,
+      4
+    ]
+  },
+  {
+    "id": "final",
+    "bpm": 136,
+    "tonic": 60,
+    "minor": true,
+    "instrument": 48,
+    "motif": [
+      0,
+      6,
+      4,
+      2,
+      5,
+      1,
+      3,
+      0
+    ],
+    "progression": [
+      0,
+      3,
+      5,
+      4
+    ]
+  },
+  {
+    "id": "shop",
+    "bpm": 118,
+    "tonic": 65,
+    "minor": false,
+    "instrument": 11,
+    "motif": [
+      2,
+      0,
+      4,
+      1,
+      3,
+      2,
+      5,
+      1
+    ],
+    "progression": [
+      0,
+      1,
+      4,
+      0
+    ]
+  },
+  {
+    "id": "emotion",
+    "bpm": 72,
+    "tonic": 60,
+    "minor": false,
+    "instrument": 0,
+    "motif": [
+      0,
+      2,
+      1,
+      4,
+      3,
+      1,
+      0,
+      2
+    ],
+    "progression": [
+      0,
+      5,
+      3,
+      4
+    ]
+  },
+  {
+    "id": "victory",
+    "bpm": 132,
+    "tonic": 67,
+    "minor": false,
+    "instrument": 56,
+    "motif": [
+      0,
+      2,
+      4,
+      7,
+      6,
+      4,
+      5,
+      7
+    ],
+    "progression": [
+      0,
+      3,
+      4,
+      0
+    ]
+  },
+  {
+    "id": "ending",
+    "bpm": 96,
+    "tonic": 65,
+    "minor": false,
+    "instrument": 73,
+    "motif": [
+      0,
+      4,
+      6,
+      5,
+      3,
+      2,
+      4,
+      7
+    ],
+    "progression": [
+      0,
+      3,
+      5,
+      4
+    ]
+  },
+  {
+    "id": "defeat",
+    "bpm": 68,
+    "tonic": 57,
+    "minor": true,
+    "instrument": 0,
+    "motif": [
+      4,
+      3,
+      2,
+      0,
+      1,
+      2,
+      1,
+      0
+    ],
+    "progression": [
+      0,
+      5,
+      3,
+      0
+    ]
+  }
+]

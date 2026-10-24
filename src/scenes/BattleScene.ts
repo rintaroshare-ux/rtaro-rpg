@@ -1,3 +1,4 @@
+import {battleTrack,fieldTrack} from '../audio/tracks';
 import {isJourneyMap} from '../game/campaignData';
 import {checkpoint,recordCampaignVictory} from '../game/campaign';
 import type {MobileMenu} from '../input/mobileMenu';
@@ -40,7 +41,7 @@ export class BattleScene extends Phaser.Scene{
   constructor(){super('Battle')}
   create(data:{formation?:EnemyId[];kind?:EnemyId}={}):void{
     this.battle=state.resumeBattle?Battle.resume(state,state.resumeBattle):new Battle(state,data.formation??[data.kind??'bear']);
-    music.setTrack(this.battle.boss?'boss':'battle');document.body.classList.add('battle-screen');this.events.once('shutdown',()=>document.body.classList.remove('battle-screen'));
+    music.setTrack(battleTrack(this.battle.foes.map(f=>f.kind),this.battle.boss));document.body.classList.add('battle-screen');this.events.once('shutdown',()=>document.body.classList.remove('battle-screen'));
     this.actor=null;this.command=0;this.target=0;this.itemIndex=0;this.selection='command';this.busy=false;this.result=false;
     this.stats=[];this.enemyLabels=[];this.images=[];this.points=[];this.partySprites=[];this.menuRows=[];this.rowLabels=[];this.pendingHero=null;
     this.cameras.main.setBackgroundColor(0x90b4bb);
@@ -104,7 +105,7 @@ export class BattleScene extends Phaser.Scene{
     }
   }
   private present(event:BattleEvent):void{
-    this.busy=true;this.log.setText(event.text);
+    this.busy=true;this.log.setText(event.text);if(event.ok)music.playEffect(event.effect??'hit');
     if(this.actor!==null&&!this.battle.readyHeroes.includes(this.actor))this.actor=null;
     const duration=event.ok?battleEffect(this,event,this.points,state.party.map((_,i)=>partyPoint(i))):100;
     this.animateParty(event,duration);
@@ -223,13 +224,13 @@ export class BattleScene extends Phaser.Scene{
     this.pendingHero=this.actor;this.actor=null;this.selection='command';this.refresh();
   }
   private end():void{
-    this.result=true;this.actor=null;music.setTrack(this.battle.outcome==='win'?'victory':this.battle.outcome==='lose'?'defeat':'field');
+    this.result=true;this.actor=null;music.setTrack(this.battle.outcome==='win'?'victory':this.battle.outcome==='lose'?'defeat':fieldTrack(state.map));
     if(this.battle.outcome==='win'){
       const reward=this.battle.reward()!;
-      this.heading.setText('ぬいぐるみは おとなしくなった！');
+      this.heading.setText(this.battle.foes.some(f=>f.kind==='dad')?'仕事オバケは おとなしくなった！':'ぬいぐるみは おとなしくなった！');
       const drops=Object.entries(reward.drops).map(([item,count])=>`${battleItems[item as BattleItem].name}×${count}`).join('・');
       this.log.setText(`EXP ${reward.xp} / ${reward.money}G / ${drops}\n${reward.levels.join(' / ')||'みんなの勇気が、少し大きくなった。'}`).setFontSize(10);
-    }else this.log.setText(this.battle.outcome==='escape'?'安全に逃げきった。少し歩くまでは敵が出にくくなります。':'全員が戦闘不能になった…。自宅で全回復してやり直せます。');
+    }else this.log.setText(this.battle.outcome==='escape'?'安全に逃げきった。少し歩くまでは敵が出にくくなります。':(isJourneyMap(state.map)?'全員が戦闘不能になった…。この章の休憩所で全回復してやり直せます。':'全員が戦闘不能になった…。自宅で全回復してやり直せます。'));
     this.refresh();
   }
   private finish():void{

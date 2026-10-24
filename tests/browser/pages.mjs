@@ -5,7 +5,7 @@ import { resolve, extname, sep } from 'node:path';
 import assert from 'node:assert/strict';
 const root = resolve('dist');
 assert.ok(existsSync(resolve(root, 'index.html')), 'run npm run build first');
-const mime = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png'};
+const mime = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.ogg':'audio/ogg'};
 const server = createServer((req,res) => {
   const pathname = new URL(req.url, 'http://localhost').pathname;
   if (!pathname.startsWith('/rtaro-rpg/')) {res.writeHead(404).end();return;}
@@ -33,5 +33,7 @@ try {
   await page.keyboard.down('ArrowRight');await page.waitForTimeout(400);await page.keyboard.up('ArrowRight');
   await page.screenshot({path:'diagnostics/pages-field.png'});
   assert.deepEqual(errors,[]);
+  const compositions=JSON.parse(readFileSync('public/audio/compositions.json','utf8'));
+  for(const c of compositions){const r=await page.request.get(`http://127.0.0.1:${server.address().port}/rtaro-rpg/audio/${c.id}.ogg`);assert.equal(r.status(),200);assert.equal((await r.body()).subarray(0,4).toString(),'OggS');}
   console.log('Production Pages path /rtaro-rpg/: title, field, JS/CSS and all 29 PNGs passed');
 } finally {await browser.close();server.close();}

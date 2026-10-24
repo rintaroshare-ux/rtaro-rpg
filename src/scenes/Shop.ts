@@ -1,3 +1,5 @@
+import {music} from '../audio/music';
+import {fieldTrack} from '../audio/tracks';
 import {isJourneyMap} from '../game/campaignData';
 import type {MobileMenu} from '../input/mobileMenu';
 import Phaser from 'phaser';
@@ -10,7 +12,7 @@ import {uiButton} from './uiButton';
 export class Shop extends Phaser.Scene{
  private kind:'items'|'equipment'='items';private side:'buy'|'sell'='buy';private index=0;private quantity=1;private notice='↑↓ 選択 / ←→ 売買 / Q・E 個数 / 決定で取引';private ui:Phaser.GameObjects.GameObject[]=[];
  constructor(){super('Shop')}
- create(data:{kind?:'items'|'equipment'}={}):void{this.kind=data.kind??'items';this.side='buy';this.index=0;this.quantity=1;this.notice='いらっしゃい！ 装備は購入後「どうぐ・装備」で身につけられます。';this.ui=[];this.draw();bind(this,e=>this.key(e));}
+ create(data:{kind?:'items'|'equipment'}={}):void{music.setTrack('shop');this.kind=data.kind??'items';this.side='buy';this.index=0;this.quantity=1;this.notice='いらっしゃい！ 装備は購入後「どうぐ・装備」で身につけられます。';this.ui=[];this.draw();bind(this,e=>this.key(e));}
  saveAnywhere(automatic=false):boolean{return save(automatic);}
  getMobileMenu():MobileMenu{
   const entries=this.entries(),page=Math.floor(this.index/4),id=entries[this.index];
@@ -52,5 +54,5 @@ ${detail}`,back:()=>this.close(),tabs:[{id:'buy',label:'買う',selected:this.si
   if(['KeyQ','KeyE'].includes(e.code)){this.quantity=this.quantity===1?5:1;this.draw();}
   if(confirmKey(e))this.transact();
  }
- private close():void{this.scene.resume(isJourneyMap(state.map)?'Campaign':'Field');this.scene.stop();}
+ private close():void{music.setTrack(fieldTrack(state.map));this.scene.resume(isJourneyMap(state.map)?'Campaign':'Field');this.scene.stop();}
 }

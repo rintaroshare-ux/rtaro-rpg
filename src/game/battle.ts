@@ -144,7 +144,7 @@ export class Battle {
     const ratio=f.hp/combatEnemies[f.kind].hp;
     const phase=Math.max(f.phase,ratio>bossPhases[0].threshold?0:ratio>bossPhases[1].threshold?1:2);
     if(phase===f.phase)return '';
-    f.phase=phase;f.actions=0;return ` 【形態${phase+1}：${bossPhases[phase].name}】`;
+    f.phase=phase;f.actions=0;return ` 【形態${phase+1}：${f.kind==='king'?bossPhases[phase].name:f.kind==='dad'?['まだ帰れない','ひとりで抱える','おかえりの声'][phase]:['行く手の番人','本気の番人','最後のひとふんばり'][phase]}】`;
   }
   private enemyAction(index:number):BattleEvent{
     const f=this.foes[index],def=combatEnemies[f.kind];
@@ -161,7 +161,7 @@ export class Battle {
       if(m.hp<=0){this.clock.set(key('hero',i),0);this.queue.cancel(key('hero',i));this.guards.delete(i);}
     }
     if(command==='drain')f.hp=Math.min(def.hp,f.hp+Math.floor(total*.6));
-    return {ok:true,text:`${def.name}の${command==='sweep'?'モフモフ大旋風':command==='drain'?'綿わたドレイン':'攻撃'}！ ${hits.join(' / ')}`,effect:command==='sweep'?'sweep':'hit',heroes:targets,enemies:[],amount:total};
+    return {ok:true,text:`${def.name}の${f.kind==='dad'?(command==='sweep'?'締め切りラッシュ':command==='drain'?'追加会議':'資料アタック'):(command==='sweep'?'モフモフ大旋風':command==='drain'?'綿わたドレイン':'攻撃')}！ ${hits.join(' / ')}`,effect:command==='sweep'?'sweep':'hit',heroes:targets,enemies:[],amount:total};
   }
   reward():Rewards|null{
     if(this.outcome!=='win')return null;

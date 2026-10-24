@@ -1,3 +1,4 @@
+/** Archived Phase 1 score data. Not imported by the runtime music player. */
 export type TrackId='title'|'field'|'battle'|'boss'|'victory'|'defeat';
 export interface Score {name:string;bpm:number;notes:readonly number[];roots:readonly number[];drums:boolean;loop:boolean}
 // Original eight-bar melodies. MIDI 0 = rest. No borrowed tunes or recordings.
