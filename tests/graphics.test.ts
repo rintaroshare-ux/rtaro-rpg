@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { CHARACTER_HEIGHT, CHARACTER_WIDTH, characterAssets, DIRECTIONS, idleFrame, MAP_COLUMNS, MAP_ROWS, TILESET_COLUMNS, TILESET_ROWS, walkFrames } from '../src/graphics/spec';
+import { CHARACTER_HEIGHT, CHARACTER_WIDTH, characterAssets, sceneAssets, DIRECTIONS, idleFrame, MAP_COLUMNS, MAP_ROWS, TILESET_COLUMNS, TILESET_ROWS, walkFrames } from '../src/graphics/spec';
 import { buildingLayout, groundLayout, treePositions } from '../src/graphics/mapLayout';
 import { order, maps } from '../src/game/data';
 test('all original PNGs satisfy the fixed atlas/frame contract', () => {
@@ -12,6 +12,7 @@ test('all original PNGs satisfy the fixed atlas/frame contract', () => {
     return [png.readUInt32BE(16), png.readUInt32BE(20)];
   };
   for (const asset of characterAssets) assert.deepEqual(dimensions(`characters/${asset.file}`), [CHARACTER_WIDTH * 3, CHARACTER_HEIGHT * 4]);
+  for(const asset of sceneAssets)assert.deepEqual(dimensions(asset.file),[asset.width,asset.height]);
   assert.deepEqual(dimensions('tilesets/kosugi.png'), [TILESET_COLUMNS * 32, TILESET_ROWS * 32]);
 });
 test('walk loops remain inside their direction row and stop on neutral frame', () => {

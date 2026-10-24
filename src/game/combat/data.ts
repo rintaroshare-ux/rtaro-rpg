@@ -1,3 +1,4 @@
+import {plushEnemies,plushIds,type PlushEnemyId} from '../bestiary';
 import {consumables,type ConsumableId} from '../economy/catalog';
 import { enemies, type EnemyId, type HeroId, type SpellId } from '../data';
 export type Element = 'physical' | 'lightning' | 'water' | 'dark';
@@ -8,8 +9,7 @@ export type BattleItem=ConsumableId;
 export const battleItems=consumables;
 export interface EnemyDefinition {name:string;texture:string;hp:number;atk:number;speed:number;xp:number;money:number;resists:Partial<Record<Element, number>>;drop:BattleItem}
 export const combatEnemies: Record<EnemyId, EnemyDefinition> = {
-  bear:{...enemies.bear,hp:65,atk:10,speed:10,xp:30,money:12,resists:{lightning:1.5,water:.65},drop:'bowl'},
-  rabbit:{...enemies.rabbit,hp:72,atk:11,speed:15,xp:36,money:16,resists:{water:1.5,dark:.65},drop:'ether'},
+  ...Object.fromEntries(plushIds.map((id):[PlushEnemyId,EnemyDefinition]=>[id,{...plushEnemies[id],texture:id}])) as Record<PlushEnemyId,EnemyDefinition>,
   king:{...enemies.king,hp:760,atk:20,speed:14,xp:300,money:250,resists:{lightning:1.5,dark:.5},drop:'revive'},
 };
 export const bossPhases = [

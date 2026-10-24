@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { generateArt } from '../game/art';
-import { CHARACTER_HEIGHT, CHARACTER_WIDTH, characterAssets, DIRECTIONS, idleFrame, TILE_SIZE, TILESET_COLUMNS, TILESET_KEY, TILESET_ROWS, WALK_FPS, walkFrames } from './spec';
+import { CHARACTER_HEIGHT, CHARACTER_WIDTH, characterAssets, sceneAssets, DIRECTIONS, idleFrame, TILE_SIZE, TILESET_COLUMNS, TILESET_KEY, TILESET_ROWS, WALK_FPS, walkFrames } from './spec';
 
 export function preloadAssets(scene: Phaser.Scene): void {
   const base = `${import.meta.env.BASE_URL}assets/`;
@@ -9,6 +9,7 @@ export function preloadAssets(scene: Phaser.Scene): void {
       frameWidth: CHARACTER_WIDTH, frameHeight: CHARACTER_HEIGHT,
     });
   }
+  for(const asset of sceneAssets)if(!scene.textures.exists(asset.key))scene.load.image(asset.key,`${base}${asset.file}`);
   if (!scene.textures.exists(TILESET_KEY)) scene.load.image(TILESET_KEY, `${base}tilesets/kosugi.png`);
 }
 
@@ -21,6 +22,7 @@ export function prepareAssets(scene: Phaser.Scene): void {
     scene.textures.remove(key);
     return true;
   });
+  for(const asset of sceneAssets)if(scene.textures.exists(asset.key)){const source=scene.textures.get(asset.key).source[0];if(source.width!==asset.width||source.height!==asset.height)scene.textures.remove(asset.key);}
   generateArt(scene); // Legacy enemies/NPCs remain supported during this migration.
   for (const { key } of missing) {
     const source = scene.textures.get(key).getSourceImage() as HTMLCanvasElement;
@@ -53,6 +55,7 @@ export function prepareAssets(scene: Phaser.Scene): void {
       if (!scene.anims.exists(name)) scene.anims.create({ key: name, frames: walkFrames(direction).map(frame => ({ key, frame })), frameRate: WALK_FPS, repeat: -1 });
     }
   }
+  for(const asset of sceneAssets)scene.textures.get(asset.key).setFilter(Phaser.Textures.FilterMode.NEAREST);
   scene.textures.get(TILESET_KEY).setFilter(Phaser.Textures.FilterMode.NEAREST);
 }
 

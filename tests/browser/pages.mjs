@@ -25,7 +25,7 @@ try {
   await page.goto(`http://127.0.0.1:${server.address().port}/rtaro-rpg/`);
   await page.waitForFunction(()=>document.querySelector('canvas')?.width===640);
   await page.waitForTimeout(1200);
-  assert.equal(pngs.size,5,'four character PNGs and the tileset load beneath the Pages path');
+  assert.equal(pngs.size,28,'four heroes, seventeen enemies, six NPC/object PNGs and the tileset load beneath the Pages path');
   assert.equal(await page.title(),'R太郎と伝説の海鮮丼');
   await page.screenshot({path:'diagnostics/pages-title.png'});
   await page.keyboard.press('Enter'); await page.waitForTimeout(250);
@@ -33,5 +33,5 @@ try {
   await page.keyboard.down('ArrowRight');await page.waitForTimeout(400);await page.keyboard.up('ArrowRight');
   await page.screenshot({path:'diagnostics/pages-field.png'});
   assert.deepEqual(errors,[]);
-  console.log('Production Pages path /rtaro-rpg/: title, field, JS/CSS and all five PNGs passed');
+  console.log('Production Pages path /rtaro-rpg/: title, field, JS/CSS and all 28 PNGs passed');
 } finally {await browser.close();server.close();}

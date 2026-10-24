@@ -1,3 +1,4 @@
+import {plushIds} from '../game/bestiary';
 /** Asset contract. Keep texture keys stable for save/scene compatibility. */
 export const CHARACTER_WIDTH = 32;
 export const CHARACTER_HEIGHT = 48;
@@ -30,3 +31,5 @@ export const Tiles = {
   treeTL: 16, treeTR: 17, treeML: 18, treeMR: 19, treeBL: 20, treeBR: 21,
   hedge: 22, planter: 23, bench: 24, lamp: 25, steps: 26, pondEdge: 27, shadow: 28,
 } as const;
+
+export const sceneAssets=[...plushIds.map(key=>({key,file:`enemies/${key}.png`,width:64,height:64})),{key:'king',file:'enemies/king.png',width:96,height:96},...['mom','old','fishmonger','merchant','chest','chestOpen'].map(key=>({key,file:`npcs/${key}.png`,width:32,height:48}))];

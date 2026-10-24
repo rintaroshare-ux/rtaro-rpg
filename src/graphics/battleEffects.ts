@@ -13,6 +13,12 @@ export function battleEffect(scene:Phaser.Scene,event:BattleEvent,enemyPoints:Po
     const pixel=scene.add.graphics();pixel.fillStyle(0xffffff).fillRect(0,0,3,3);pixel.generateTexture('combat-spark',3,3);pixel.destroy();
   }
   for(const point of targets){
+    if(['thunder','water','heal','void','revive'].includes(event.effect)){
+      const sigil=scene.add.graphics().setPosition(point.x,point.y+12).setDepth(59);
+      sigil.lineStyle(2,color,.8).strokeEllipse(0,0,62,23).lineStyle(1,color,.55).strokeEllipse(0,0,74,30);
+      for(let i=0;i<8;i++){const a=i*Math.PI/4;sigil.fillStyle(color,.9).fillRect(Math.cos(a)*34-1,Math.sin(a)*13-1,3,3);}
+      scene.tweens.add({targets:sigil,scaleX:1.6,scaleY:1.4,alpha:0,duration:duration+100,onComplete:()=>sigil.destroy()});
+    }
     const g=scene.add.graphics().setPosition(point.x,point.y).setDepth(60);
     if(event.effect==='thunder'){
       for(let n=0;n<3;n++){

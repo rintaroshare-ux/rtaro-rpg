@@ -1,3 +1,4 @@
+import {plushIds} from './bestiary';
 import type { EnemyId, MapId } from './data';
 export const STEP_PIXELS = 24;
 const NPC_SAFE_RADIUS = 74;
@@ -27,5 +28,6 @@ export class StepEncounters {
 }
 export function randomFormation(partySize:number,random:()=>number=Math.random):EnemyId[]{
   const count=1+Math.floor(random()*Math.max(1,Math.min(3,partySize)));
-  return Array.from({length:count},()=>random()<.5?'bear':'rabbit');
+  const pool=partySize<=1?['bear','rabbit','cat','dog'] as const:partySize===2?plushIds.slice(0,8):plushIds;
+  return Array.from({length:count},()=>pool[Math.min(pool.length-1,Math.floor(random()*pool.length))]);
 }

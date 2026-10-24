@@ -54,8 +54,9 @@ export class BattleScene extends Phaser.Scene{
     this.battle.foes.forEach((f,i)=>{
       const {x,y}=enemyPoint(i,this.battle.foes.length);
       this.points.push({x,y});
-      this.images.push(this.add.image(x,y,combatEnemies[f.kind].texture).setScale(f.kind==='king'?2.7:1.5).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.tapEnemy(i)));
-      this.enemyLabels.push(label(this,x,y+(f.kind==='king'?39:23),'',8).setOrigin(.5,0).setLineSpacing(0));
+      this.images.push(this.add.image(x,y,combatEnemies[f.kind].texture).setDisplaySize(f.kind==='king'?96:48,f.kind==='king'?96:48).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.tapEnemy(i)));
+      this.tweens.add({targets:this.images[i],y:y-2,duration:850+i*120,yoyo:true,repeat:-1});
+      this.enemyLabels.push(label(this,x,y+(f.kind==='king'?54:23),'',8).setOrigin(.5,0).setLineSpacing(0));
     });
     state.party.forEach((m,i)=>{
       const point=partyPoint(i);
@@ -116,10 +117,11 @@ export class BattleScene extends Phaser.Scene{
     this.bars.clear();
     this.battle.foes.forEach((f,i)=>{
       const p=this.points[i],def=combatEnemies[f.kind];
+      if(f.kind==='king')this.images[i].setTint([0xffffff,0xffe5bc,0xffc6b2][f.phase]);
       this.images[i].setAlpha(f.hp>0?1:.15);
       this.enemyLabels[i].setText(`${this.selection==='enemy'&&this.target===i?'> ':''}${def.name}\nHP ${f.hp}/${def.hp}`);
-      this.bars.fillStyle(0x142e39).fillRect(p.x-42,p.y+(f.kind==='king'?68:42),84,4).fillStyle(0xdda96e).fillRect(p.x-42,p.y+(f.kind==='king'?68:42),84*f.hp/def.hp,4);
-      this.bars.fillStyle(0x192f3a).fillRect(p.x-42,p.y+(f.kind==='king'?74:47),84,2).fillStyle(0xb6cbd0).fillRect(p.x-42,p.y+(f.kind==='king'?74:47),84*this.battle.gauge('enemy',i),2);
+      this.bars.fillStyle(0x142e39).fillRect(p.x-42,p.y+(f.kind==='king'?76:42),84,4).fillStyle(0xdda96e).fillRect(p.x-42,p.y+(f.kind==='king'?76:42),84*f.hp/def.hp,4);
+      this.bars.fillStyle(0x192f3a).fillRect(p.x-42,p.y+(f.kind==='king'?82:47),84,2).fillStyle(0xb6cbd0).fillRect(p.x-42,p.y+(f.kind==='king'?82:47),84*this.battle.gauge('enemy',i),2);
     });
     state.party.forEach((m,i)=>{
       this.stats[i].setText(`${this.actor===i?'>':' '} ${heroes[m.id].name}\n   HP ${m.hp}/${maxHp(m)}  MP ${m.mp}/${maxMp(m)}${m.hp===0?' [戦闘不能]':''}`).setFontSize(9).setLineSpacing(0);
