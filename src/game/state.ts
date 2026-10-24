@@ -61,4 +61,4 @@ export function migrateSave(raw:unknown):State|null{
   }
   return {version:3,map:v.map as MapId,x:v.x,y:v.y,party,flags:[...v.flags],defeated:[...v.defeated],bowls:v.bowls,minutes:v.minutes,money,inventory,atbMode,gearBag,resumeBattle};
 }
-export function objective():string{return !state.flags.includes('message')?'ママと話して、パパのメッセージを読もう':state.party.length===1?'公園でマーモットに話しかけよう':state.party.length===2?'商店街でふぐを探そう':state.party.length===3?'駅前でシンガポール太郎に会おう':'駅前広場のベルを調べてキングに挑もう'}
+export function objective():string{return !state.flags.includes('message')?'ママと話して、パパのメッセージを読もう':state.party.length===1?'公園でマーモットに話しかけよう':state.party.length===2?'商店街でグアムバードを探そう':state.party.length===3?'駅前でシンガポール太郎に会おう':'駅前広場のベルを調べてキングに挑もう'}

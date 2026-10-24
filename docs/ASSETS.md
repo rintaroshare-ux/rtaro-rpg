@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | R太郎 | `public/assets/characters/rtaro.png` | `rintaro`（互換用） |
 | マーモット | `public/assets/characters/marmot.png` | `marmot` |
-| ふぐ | `public/assets/characters/fugu.png` | `fugu` |
+| グアムバード | `public/assets/characters/guam-bird.png` | `fugu` |
 | シンガポール太郎 | `public/assets/characters/vanilla.png` | `vanilla` |
 | 武蔵小杉タイルセット | `public/assets/tilesets/kosugi.png` | `kosugi-tiles` |
 
@@ -76,3 +76,7 @@ PNGを含む通常配信には外部画像サーバーや外部APIは不要で�
 商店街は既存タイルのひさしを店舗ごとに配置し、家や店舗へのアプローチ、駅前広場と入口の階段を追加しています。建物、道、木、看板、店先は独立したレイヤーです。
 
 シンガポール太郎の内部ID・テクスチャキー・PNG名は、既存セーブと素材参照の互換性のため `vanilla` を維持します。表示名はキャラクター定義から取得します。添付のぬいぐるみ写真は公開アセットに含めません。
+
+グアムバードは、紺色の羽・白いお腹・青いくちばし・茶色の足を特徴とする鳥のぬいぐるみです。旧セーブ互換のため内部IDとテクスチャキー `fugu` は維持します。参考写真は公開ファイルに含めません。
+
+グアムバードのPNGは画像生成で作成した独立素材です。3列×4行のマスターを `scripts/normalize-spritesheet.mjs` で補間なしに96×192へ正規化し、既存の32×48・12フレーム契約を維持します。`scripts/generate_assets.py` の旧 `fugu.png` は使用しません。

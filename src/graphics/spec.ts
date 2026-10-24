@@ -12,7 +12,7 @@ export type Direction = typeof DIRECTIONS[number];
 export const characterAssets = [
   { key: 'rintaro', file: 'rtaro.png' },
   { key: 'marmot', file: 'marmot.png' },
-  { key: 'fugu', file: 'fugu.png' },
+  { key: 'fugu', file: 'guam-bird.png' },
   { key: 'vanilla', file: 'vanilla.png' },
 ] as const;
 export type CharacterKey = typeof characterAssets[number]['key'];
