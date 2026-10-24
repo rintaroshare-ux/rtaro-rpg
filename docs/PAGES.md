@@ -1,6 +1,6 @@
 # GitHub Pages公開・統合手順
 
-このPhase 1変更は `rintaroshare-ux/rtaro-rpg` の `main` コミット `fb6766b` を土台にしています。保存形式はv2へ移行し、ATB戦闘・歩数エンカウントへ変更しています。詳細は[Phase 1仕様](PHASE1.md)を参照してください。
+この2.1更新は `rintaroshare-ux/rtaro-rpg` の `main` コミット `ab00fbeab2a8f83b6f2734c069928b328ccdeb5f` を土台にしています。戦闘計算と保存形式を維持し、右側の仲間表示・オリジナルBGM・基本タッチ操作を追加しました。詳細は[変更仕様](BATTLE_MUSIC_TOUCH.md)を参照してください。
 
 ## ZIPで適用
 
@@ -11,7 +11,7 @@ npm ci
 npm test
 npm run build
 git add src public scripts docs tests .github package.json package-lock.json README.md .gitignore
-git commit -m "Implement phase one ATB battles and walking encounters"
+git commit -m "Add party battle formation, original music and touch controls"
 git push origin main
 ```
 
@@ -24,7 +24,7 @@ Windowsの展開ソフトによっては`.github`などの隠しファイルが�
 ```sh
 git switch main
 git pull --ff-only origin main
-git am /path/to/rtaro-rpg-v2-phase1.patch
+git am /path/to/rtaro-v2.1.patch
 npm ci
 npm test
 npm run build
@@ -45,7 +45,7 @@ git push origin main
 
 ## 認証
 
-この環境からのGitHub書き込み用トークンは無効で、リモートへのpushは行っていません。認証情報はコード・ZIPに含めないでください。PCで必要なら次を実行します。
+GitHub連携では、対象リポジトリへの書き込み権限を許可してください。ChatGPTの連携とPCのGitHub CLIは別の認証です。認証情報はコード・ZIPに含めないでください。PCでCLIを使う場合は必要に応じて次を実行します。
 
 ```sh
 gh auth login --hostname github.com --web

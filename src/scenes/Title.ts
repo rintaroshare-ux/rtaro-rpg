@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import {music} from '../audio/music';
 import { faceDown } from '../graphics/assets';
 import { CHARACTER_ORIGIN_Y, CHARACTER_SCALE, characterAssets } from '../graphics/spec';
 import { heroes } from '../game/data';
@@ -12,6 +13,7 @@ export class Title extends Phaser.Scene {
   constructor() { super('Title'); }
 
   create(): void {
+    music.setTrack('title');
     this.choice = 0;
     this.cameras.main.setBackgroundColor(0xa7c8b2);
     const g = this.add.graphics();

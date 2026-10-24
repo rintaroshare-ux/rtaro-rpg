@@ -50,7 +50,7 @@ try{
  }
  for(const event of [{map:'home',x:270,y:305,count:1},{map:'park',x:220,y:315,count:2},{map:'market',x:270,y:325,count:3},{map:'station',x:240,y:335,count:4}]){
   if(event.map!=='home'){await inspect(page,g=>g.scene.getScene('Field').player.body.reset(925,370));await page.keyboard.down('ArrowRight');await page.waitForTimeout(260);await page.keyboard.up('ArrowRight');await page.waitForFunction(async expected=>{const {state}=await import('/src/game/state.ts');const field=window.__testGame.scene.getScene('Field');return state.map===expected&&field.sys.isActive()&&!field.changing;},event.map);}
-  await inspect(page,(g,e)=>g.scene.getScene('Field').player.body.reset(e.x,e.y),event);await press(page,'Enter');assert.equal(await inspect(page,g=>g.scene.getScene('Field').mode),'talk');
+  await inspect(page,(g,e)=>g.scene.getScene('Field').player.body.reset(e.x,e.y),event);await page.waitForTimeout(120);await press(page,'Enter');assert.equal(await inspect(page,g=>g.scene.getScene('Field').mode),'talk',JSON.stringify({event,context:await inspect(page,g=>{const s=g.scene.getScene('Field');return {near:s.nearby()?.name,x:s.player.x,y:s.player.y,changing:s.changing,active:g.scene.getScenes(true).map(s=>s.sys.settings.key)};})}));
   for(let i=0;i<3;i++){await press(page,'Enter');await page.waitForTimeout(90);}
   const progress=await page.evaluate(async()=>{const {state}=await import('/src/game/state.ts');return {map:state.map,count:state.party.length}});assert.deepEqual(progress,{map:event.map,count:event.count});
  }
