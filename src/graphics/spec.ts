@@ -32,4 +32,4 @@ export const Tiles = {
   hedge: 22, planter: 23, bench: 24, lamp: 25, steps: 26, pondEdge: 27, shadow: 28,
 } as const;
 
-export const sceneAssets=[...plushIds.map(key=>({key,file:`enemies/${key}.png`,width:64,height:64})),{key:'king',file:'enemies/king.png',width:96,height:96},...['mom','old','fishmonger','merchant','chest','chestOpen'].map(key=>({key,file:`npcs/${key}.png`,width:32,height:48}))];
+export const sceneAssets=[...plushIds.map(key=>({key,file:`enemies/${key}.png`,width:64,height:64})),{key:'king',file:'enemies/king.png',width:96,height:96},...['mom','old','fishmonger','merchant','chest','chestOpen'].map(key=>({key,file:key==='mom'?'npcs/mom-plush.png':`npcs/${key}.png`,width:32,height:48}))];
