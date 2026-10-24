@@ -7,9 +7,9 @@
 | 対象 | 公開パス | 実行時キー |
 | --- | --- | --- |
 | R太郎 | `public/assets/characters/rtaro.png` | `rintaro`（互換用） |
-| マーモット | `public/assets/characters/marmot.png` | `marmot` |
+| マーモット | `public/assets/characters/marmot-plush.png` | `marmot` |
 | グアムバード | `public/assets/characters/guam-bird.png` | `fugu` |
-| シンガポール太郎 | `public/assets/characters/vanilla.png` | `vanilla` |
+| シンガポール太郎 | `public/assets/characters/singapore-taro.png` | `vanilla` |
 | 武蔵小杉タイルセット | `public/assets/tilesets/kosugi.png` | `kosugi-tiles` |
 
 Viteの`BASE_URL`を使ってロードします。GitHub Pagesのサブディレクトリにも対応します。PNGはリポジトリに含めてください。ファイル名は小文字・完全一致です。
@@ -75,8 +75,14 @@ PNGを含む通常配信には外部画像サーバーや外部APIは不要で�
 
 商店街は既存タイルのひさしを店舗ごとに配置し、家や店舗へのアプローチ、駅前広場と入口の階段を追加しています。建物、道、木、看板、店先は独立したレイヤーです。
 
-シンガポール太郎の内部ID・テクスチャキー・PNG名は、既存セーブと素材参照の互換性のため `vanilla` を維持します。表示名はキャラクター定義から取得します。添付のぬいぐるみ写真は公開アセットに含めません。
+シンガポール太郎の内部ID・テクスチャキーは、既存セーブと素材参照の互換性のため `vanilla` を維持します。表示名はキャラクター定義から取得します。添付のぬいぐるみ写真は公開アセットに含めません。
 
 グアムバードは、紺色の羽・白いお腹・青いくちばし・茶色の足を特徴とする鳥のぬいぐるみです。旧セーブ互換のため内部IDとテクスチャキー `fugu` は維持します。参考写真は公開ファイルに含めません。
 
 グアムバードのPNGは画像生成で作成した独立素材です。3列×4行のマスターを `scripts/normalize-spritesheet.mjs` で補間なしに96×192へ正規化し、既存の32×48・12フレーム契約を維持します。`scripts/generate_assets.py` の旧 `fugu.png` は使用しません。
+
+## 写真を参考にした仲間の新規PNG
+
+シンガポール太郎は白い丸頭・黒い目・赤いマフラー・灰色の服・リュック、マーモットは丸いベージュの体・茶色い頭の毛・大きい黒い鼻・赤い口元を特徴とする生成ドット絵です。写真本体・背景・タグ・ひもは公開ファイルに含めません。
+
+両者とも独立した3列×4行のマスターを生成し、`scripts/normalize-spritesheet.mjs` の `--fit-frames` で各コマを検出・整列し、足元を揃えた96×192に正規化しています。既存の4方向×3フレーム・32×48・倍率1・内部IDを維持し、フィールド／戦闘／クリア画面が同じPNGを参照します。旧 `marmot.png` と `vanilla.png` は保存したままロード対象から外しています。`scripts/generate_assets.py` は旧素材用のため、新PNGを上書きしません。PNG欠落時は新デザインの特徴を持つ仮画像で継続します。

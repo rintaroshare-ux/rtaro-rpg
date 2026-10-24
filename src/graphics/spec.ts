@@ -11,9 +11,9 @@ export const DIRECTIONS = ['down', 'left', 'right', 'up'] as const;
 export type Direction = typeof DIRECTIONS[number];
 export const characterAssets = [
   { key: 'rintaro', file: 'rtaro.png' },
-  { key: 'marmot', file: 'marmot.png' },
+  { key: 'marmot', file: 'marmot-plush.png' },
   { key: 'fugu', file: 'guam-bird.png' },
-  { key: 'vanilla', file: 'vanilla.png' },
+  { key: 'vanilla', file: 'singapore-taro.png' },
 ] as const;
 export type CharacterKey = typeof characterAssets[number]['key'];
 export function idleFrame(direction: Direction): number { return DIRECTIONS.indexOf(direction) * 3 + 1; }
