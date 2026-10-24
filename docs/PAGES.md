@@ -1,6 +1,6 @@
 # GitHub Pages公開・統合手順
 
-この変更は `rintaroshare-ux/rtaro-rpg` の `main` コミット `4dacea8130911f998cde87f45f73968378df4b2d` を土台にしています。戦闘計算・保存形式・ストーリーデータはそのままです。
+このPhase 1変更は `rintaroshare-ux/rtaro-rpg` の `main` コミット `fb6766b` を土台にしています。保存形式はv2へ移行し、ATB戦闘・歩数エンカウントへ変更しています。詳細は[Phase 1仕様](PHASE1.md)を参照してください。
 
 ## ZIPで適用
 
@@ -11,7 +11,7 @@ npm ci
 npm test
 npm run build
 git add src public scripts docs tests .github package.json package-lock.json README.md .gitignore
-git commit -m "Integrate PNG characters, party walking and tile maps"
+git commit -m "Implement phase one ATB battles and walking encounters"
 git push origin main
 ```
 
@@ -24,7 +24,7 @@ Windowsの展開ソフトによっては`.github`などの隠しファイルが�
 ```sh
 git switch main
 git pull --ff-only origin main
-git am /path/to/rtaro-rpg-pages.patch
+git am /path/to/rtaro-rpg-v2-phase1.patch
 npm ci
 npm test
 npm run build
