@@ -33,7 +33,7 @@ async function playBattle(page){
   await chooseCommand(page,ether?2:snapshot.mp>=costs[snapshot.id]?1:0);
   const selection=await inspect(page,g=>g.scene.getScene('Battle').selection);
   if(selection==='enemy')await press(page,'Enter');
-  if(selection==='item'){await press(page,'ArrowDown');await press(page,'Enter');await press(page,'Enter');}
+  if(selection==='item'){await press(page,'ArrowDown');await press(page,'ArrowDown');await press(page,'Enter');await press(page,'Enter');}
   await page.waitForTimeout(100);
  }
  throw Error('battle did not complete within action budget');
@@ -61,23 +61,23 @@ try{
   const {money,inventory,atbMode,...old}=state;localStorage.removeItem(SAVE_KEY);localStorage.setItem(LEGACY_SAVE_KEY,JSON.stringify({...old,version:1}));window.__testGame.scene.getScene('Field').scene.start('Title');
  });
  await page.waitForTimeout(100);await press(page,'ArrowDown');await press(page,'Enter');await page.waitForTimeout(200);
- assert.equal(await page.evaluate(async()=>(await import('/src/game/state.ts')).state.version),2);
+ assert.equal(await page.evaluate(async()=>(await import('/src/game/state.ts')).state.version),3);
  await press(page,'Escape');await press(page,'ArrowDown');await press(page,'Enter');await page.waitForTimeout(80);await press(page,'Enter');
- assert.ok(await page.evaluate(async()=>{const {SAVE_KEY,LEGACY_SAVE_KEY}=await import('/src/game/data.ts');return JSON.parse(localStorage.getItem(SAVE_KEY)).version===2&&!!localStorage.getItem(LEGACY_SAVE_KEY)}));
+ assert.ok(await page.evaluate(async()=>{const {SAVE_KEY,LEGACY_SAVE_KEY}=await import('/src/game/data.ts');return JSON.parse(localStorage.getItem(SAVE_KEY)).version===3&&!!localStorage.getItem(LEGACY_SAVE_KEY)}));
  // Four enemies and active/wait behavior while a real command window is open.
- await inspect(page,g=>g.scene.getScene('Field').scene.start('Battle',{formation:['bear','rabbit','bear','rabbit']}));await waitBattle(page);
- assert.equal(await inspect(page,g=>g.scene.getScene('Battle').images.length),4);assert.deepEqual(await inspect(page,g=>g.scene.getScenes(true).map(s=>s.sys.settings.key)),['Battle']);
+ await inspect(page,g=>g.scene.getScene('Field').scene.start('Battle',{formation:['bear','rabbit','bear']}));await waitBattle(page);
+ assert.equal(await inspect(page,g=>g.scene.getScene('Battle').images.length),3);assert.deepEqual(await inspect(page,g=>g.scene.getScenes(true).map(s=>s.sys.settings.key)),['Battle']);
  const paused=await inspect(page,g=>g.scene.getScene('Battle').battle.gauge('enemy',0));await page.waitForTimeout(250);assert.equal(await inspect(page,g=>g.scene.getScene('Battle').battle.gauge('enemy',0)),paused);
  await press(page,'KeyT');await page.waitForTimeout(250);assert.ok(await inspect(page,g=>g.scene.getScene('Battle').battle.gauge('enemy',0))>paused);await press(page,'KeyT');
  await page.screenshot({path:'diagnostics/v2-atb-four-enemies.png'});
  await playBattle(page);await press(page,'Enter');await page.waitForTimeout(200);
  assert.ok(await page.evaluate(async()=>(await import('/src/game/state.ts')).state.money>0));
- console.log('Save v1 migration/backup, wait/active mode, four-enemy ATB victory and rewards passed');
+ console.log('Save v1→v3 migration/backup, wait/active mode, three-enemy ATB victory and rewards passed');
  // Real movement in danger, deterministic step roll only; no artificial battle trigger.
  await page.evaluate(async()=>{const {StepEncounters}=await import('/src/game/encounters.ts');const field=window.__testGame.scene.getScene('Field');field.player.body.reset(150,455);field.meter=new StepEncounters(()=>0,0);});
  await page.waitForTimeout(450);assert.ok(await inspect(page,g=>g.scene.isActive('Field')));
  await page.keyboard.down('ArrowRight');await page.waitForFunction(()=>window.__testGame.scene.isActive('Battle'),{},{timeout:6000});await page.keyboard.up('ArrowRight');
- const formation=await inspect(page,g=>g.scene.getScene('Battle').battle.foes.length);assert.ok(formation>=1&&formation<=4);
+ const formation=await inspect(page,g=>g.scene.getScene('Battle').battle.foes.length);assert.ok(formation>=1&&formation<=3);
  for(let attempt=0;attempt<3;attempt++){
   await waitBattle(page);if(await inspect(page,g=>g.scene.getScene('Battle').result))break;
   await chooseCommand(page,4);await page.waitForTimeout(700);

@@ -26,6 +26,6 @@ export class StepEncounters {
   }
 }
 export function randomFormation(partySize:number,random:()=>number=Math.random):EnemyId[]{
-  const count=1+Math.floor(random()*Math.max(1,Math.min(4,partySize)));
+  const count=1+Math.floor(random()*Math.max(1,Math.min(3,partySize)));
   return Array.from({length:count},()=>random()<.5?'bear':'rabbit');
 }

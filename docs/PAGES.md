@@ -1,6 +1,6 @@
 # GitHub Pages公開・統合手順
 
-この2.1更新は `rintaroshare-ux/rtaro-rpg` の `main` コミット `ab00fbeab2a8f83b6f2734c069928b328ccdeb5f` を土台にしています。戦闘計算と保存形式を維持し、右側の仲間表示・オリジナルBGM・基本タッチ操作を追加しました。詳細は[変更仕様](BATTLE_MUSIC_TOUCH.md)を参照してください。
+この2.2更新は `rintaroshare-ux/rtaro-rpg` の `main` コミット `6438aff7787c998291a3f3181d0bb59cb0350a5a` を土台にしています。最大3体、成長調整、いつでも保存、ショップ・装備を追加しています。詳細は[Phase 2仕様](PHASE2.md)を参照してください。
 
 ## ZIPで適用
 
@@ -24,7 +24,7 @@ Windowsの展開ソフトによっては`.github`などの隠しファイルが�
 ```sh
 git switch main
 git pull --ff-only origin main
-git am /path/to/rtaro-v2.1.patch
+git am /path/to/rtaro-v2.2.patch
 npm ci
 npm test
 npm run build

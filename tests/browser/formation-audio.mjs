@@ -26,7 +26,7 @@ try{
  const after=await page.evaluate(()=>window.__testGame.scene.getScene('Field').player.x);assert.ok(after>before+15);await page.waitForTimeout(180);assert.ok(Math.abs((await page.evaluate(()=>window.__testGame.scene.getScene('Field').player.x))-after)<2);
  await press('Escape');await page.locator('[data-direction="down"]').tap();await page.waitForTimeout(100);await press('Enter');await press('Enter');
  const saved=await page.evaluate(async()=>localStorage.getItem((await import('/src/game/data.ts')).SAVE_KEY));assert.ok(saved);
- await page.evaluate(async()=>{const {state,member}=await import('/src/game/state.ts');state.party=['rintaro','marmot','fugu','vanilla'].map(id=>member(id));window.__testGame.scene.getScene('Field').scene.start('Battle',{formation:['bear','rabbit','bear','rabbit']});});
+ await page.evaluate(async()=>{const {state,member}=await import('/src/game/state.ts');state.party=['rintaro','marmot','fugu','vanilla'].map(id=>member(id));window.__testGame.scene.getScene('Field').scene.start('Battle',{formation:['bear','rabbit','bear']});});
  await page.waitForFunction(()=>window.__testGame.scene.getScene('Battle').actor!==null);
  const layout=await page.evaluate(()=>{const s=window.__testGame.scene.getScene('Battle');return {allies:s.partySprites.map(p=>({x:p.x,y:p.y,frame:p.frame.name})),enemies:s.images.map(p=>p.x)}});
  assert.equal(layout.allies.length,4);assert.ok(layout.allies.every(p=>p.x>470&&p.frame===4));assert.ok(layout.enemies.every(x=>x<400));

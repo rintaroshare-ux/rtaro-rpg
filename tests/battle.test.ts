@@ -7,9 +7,9 @@ const party=():State=>{const s=fresh();s.party=['rintaro','marmot','fugu','vanil
 function act(b:Battle,i:number,command:Command,target=0,item:'bowl'|'revive'|'ether'='bowl'){
  b.clock.set(`hero:${i}`,1);const submission=b.submit(i,command,target,item);assert.equal(submission.ok,true,submission.text);const result=b.resolveNext();assert.ok(result);return result;
 }
-test('formations contain 1–4 independent enemies',()=>{
- for(let count=1;count<=4;count++){const b=new Battle(party(),Array.from({length:count},()=> 'bear'));assert.equal(b.foes.length,count);act(b,0,'attack',count-1);assert.ok(b.foes[count-1].hp<combatEnemies.bear.hp);if(count>1)assert.equal(b.foes[0].hp,combatEnemies.bear.hp)}
- assert.throws(()=>new Battle(fresh(),[]));assert.throws(()=>new Battle(fresh(),['bear','bear','bear','bear','bear']));
+test('formations contain 1–3 independent enemies',()=>{
+ for(let count=1;count<=3;count++){const b=new Battle(party(),Array.from({length:count},()=> 'bear'));assert.equal(b.foes.length,count);act(b,0,'attack',count-1);assert.ok(b.foes[count-1].hp<combatEnemies.bear.hp);if(count>1)assert.equal(b.foes[0].hp,combatEnemies.bear.hp)}
+ assert.throws(()=>new Battle(fresh(),[]));assert.throws(()=>new Battle(fresh(),['bear','bear','bear','bear']));
 });
 test('speed changes ATB; wait pauses selection while active continues',()=>{
  const s=party(),b=new Battle(s,'bear');b.tick(1000);assert.ok(b.gauge('hero',2)>b.gauge('hero',3));
@@ -59,7 +59,7 @@ test('escape fails then succeeds by third attempt; boss escape is rejected',()=>
 test('rewards grant XP, money, drops and levels exactly once; no reward before victory',()=>{
  const s=party(),b=new Battle(s,['bear','rabbit'],()=>0);assert.equal(b.reward(),null);
  while(!b.outcome){for(let i=0;i<s.party.length&&!b.outcome;i++)act(b,i,'attack');}
- assert.equal(b.outcome,'win');const r=b.reward()!;assert.equal(r.xp,40);assert.equal(s.money,28);assert.ok(s.party.every(m=>m.level===2));assert.ok(s.bowls>5);const snapshot=JSON.stringify(s);assert.equal(b.reward(),r);assert.equal(JSON.stringify(s),snapshot);
+ assert.equal(b.outcome,'win');const r=b.reward()!;assert.equal(r.xp,66);assert.equal(s.money,28);assert.ok(s.party.every(m=>m.level===2));assert.ok(s.bowls>5);const snapshot=JSON.stringify(s);assert.equal(b.reward(),r);assert.equal(JSON.stringify(s),snapshot);
 });
 test('four-member ATB simulation beats all boss phases without bypassing time',()=>{
  const s=party(),b=new Battle(s,'king',()=>.1);const phases=new Set<number>();let events=0;

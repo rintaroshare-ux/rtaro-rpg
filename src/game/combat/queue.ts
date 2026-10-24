@@ -12,6 +12,7 @@ export class ActionQueue<T> {
     this.entries.splice(index,1);return true;
   }
   shift(): T | undefined { return this.entries.shift()?.action; }
+  snapshot():T[]{return this.entries.map(entry=>structuredClone(entry.action));}
   clear(): void { this.entries.length = 0; }
   get length(): number { return this.entries.length; }
 }

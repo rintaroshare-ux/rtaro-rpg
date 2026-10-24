@@ -9,7 +9,7 @@ import {idleFrame} from '../graphics/spec';
 import {battleEffect} from '../graphics/battleEffects';
 import {bind,cancelKey,confirmKey,label,panel} from './shared';
 const COMMANDS:Command[]=['attack','magic','item','guard','flee'];
-const ITEMS:BattleItem[]=['bowl','ether','revive'];
+const ITEMS:BattleItem[]=['bowl','deluxe','ether','revive'];
 type Selection='command'|'enemy'|'item'|'ally';
 export class BattleScene extends Phaser.Scene{
   private battle!:Battle;
@@ -35,8 +35,8 @@ export class BattleScene extends Phaser.Scene{
   private rowLabels:Phaser.GameObjects.Text[]=[];
   private pendingHero:number|null=null;
   constructor(){super('Battle')}
-  create(data:{formation?:EnemyId[];kind?:EnemyId}):void{
-    this.battle=new Battle(state,data.formation??[data.kind??'bear']);
+  create(data:{formation?:EnemyId[];kind?:EnemyId}={}):void{
+    this.battle=state.resumeBattle?Battle.resume(state,state.resumeBattle):new Battle(state,data.formation??[data.kind??'bear']);
     music.setTrack(this.battle.boss?'boss':'battle');document.body.classList.add('battle-screen');this.events.once('shutdown',()=>document.body.classList.remove('battle-screen'));
     this.actor=null;this.command=0;this.target=0;this.itemIndex=0;this.selection='command';this.busy=false;this.result=false;
     this.stats=[];this.enemyLabels=[];this.images=[];this.points=[];this.partySprites=[];this.menuRows=[];this.rowLabels=[];this.pendingHero=null;
@@ -84,6 +84,7 @@ export class BattleScene extends Phaser.Scene{
     if(event){this.present(event);return;}
     this.chooseActor();this.refresh();
   }
+  saveAnywhere():boolean{state.resumeBattle=this.battle.snapshot();return save();}
   private chooseActor():void{
     const ready=this.battle.readyHeroes;
     if(this.actor===null||!ready.includes(this.actor)){
@@ -130,7 +131,7 @@ export class BattleScene extends Phaser.Scene{
       if(this.command===1)this.menuTitle.setText(`${heroes[state.party[this.actor].id].name}：${spell.name} MP${spell.cost}`);
       const names=['攻撃',`${spell.name} MP${spell.cost}`,'アイテム','防御 / MP+3','逃げる'];
       this.commands.setFontSize(11).setText(names.map((name,i)=>`${i===this.command?'>':' '} ${name}`).join('\n')).setLineSpacing(2);
-    }else if(this.selection==='item')this.commands.setText(ITEMS.map((item,i)=>`${this.itemIndex===i?'>':' '} ${battleItems[item].name} ×${this.battle.count(item)}`).join('\n')+'\nX：戻る').setLineSpacing(4);
+    }else if(this.selection==='item')this.commands.setText(ITEMS.map((item,i)=>`${this.itemIndex===i?'>':' '} ${battleItems[item].name} ×${this.battle.count(item)}`).join('\n')).setLineSpacing(4);
     else if(this.selection==='ally')this.commands.setText(state.party.map((m,i)=>`${i===this.target?'>':' '} ${heroes[m.id].name}${m.hp<=0?' [戦闘不能]':''}`).join('\n')).setLineSpacing(3);
     else{
       this.commands.setText(this.battle.foes.map((f,i)=>`${this.target===i?'>':' '} ${combatEnemies[f.kind].name}${f.hp<=0?' [倒した]':''}`).join('\n')).setLineSpacing(3);
@@ -219,6 +220,7 @@ export class BattleScene extends Phaser.Scene{
     this.refresh();
   }
   private finish():void{
+    state.resumeBattle=null;
     if(this.battle.outcome==='lose'){
       restore();state.map='home';state.x=260;state.y=330;state.bowls=Math.max(3,state.bowls);state.inventory.revive=Math.max(1,state.inventory.revive);state.inventory.ether=Math.max(1,state.inventory.ether);
     }

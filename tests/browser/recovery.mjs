@@ -7,7 +7,7 @@ try{
  await page.route('**/src/main.ts*',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text()).replace('new Phaser.Game(','window.__testGame=new Phaser.Game(')});});
  await page.goto(process.env.GAME_URL||'http://127.0.0.1:5173');await page.waitForFunction(()=>window.__testGame?.scene.isActive('Title'));
  await page.evaluate(async()=>{
-  const {state}=await import('/src/game/state.ts');state.party[0].hp=0;state.bowls=0;state.inventory={revive:0,ether:0};state.money=77;state.flags=['intro','message'];
+  const {state}=await import('/src/game/state.ts');state.party[0].hp=0;state.bowls=0;state.inventory={revive:0,ether:0,deluxe:0};state.money=77;state.flags=['intro','message'];
   // Simulate a damaged legacy state plus unavailable browser storage.
   Storage.prototype.setItem=function(){throw Error('storage unavailable')};
   window.__testGame.scene.getScene('Title').scene.start('Battle',{formation:['bear']});

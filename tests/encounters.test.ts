@@ -16,6 +16,6 @@ test('encounter frequency depends on distance instead of frame count',()=>{
  for(let i=0;i<60;i++)if(b.move(6,true))hitsB++;
  assert.equal(hitsA,hitsB);assert.equal(hitsA,1);
 });
-test('formation generation scales safely from solo to 1–4 foes',()=>{
- assert.equal(randomFormation(1,()=>.999).length,1);assert.equal(randomFormation(4,()=>.999).length,4);assert.equal(randomFormation(4,()=>0).length,1);
+test('formation generation scales safely from solo to 1–3 foes',()=>{
+ assert.equal(randomFormation(1,()=>.999).length,1);assert.equal(randomFormation(4,()=>.999).length,3);assert.equal(randomFormation(4,()=>0).length,1);
 });

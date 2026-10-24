@@ -1,8 +1,11 @@
+import {stats} from './economy/stats';
+import {canUse,useItem,count} from './economy/model';
+import type {BattleSnapshot} from './combat/snapshot';
 import { heroes, spells, type EnemyId } from './data';
 import { maxHp, maxMp, type State } from './state';
 import { AtbClock, type AtbActor } from './combat/atb';
 import { ActionQueue } from './combat/queue';
-import { battleItems, bossPhases, combatEnemies, heroSpeed, spellElements, type BattleItem, type Element } from './combat/data';
+import { bossPhases, combatEnemies, spellElements, type BattleItem, type Element } from './combat/data';
 export type Command='attack'|'magic'|'item'|'guard'|'flee';
 export type Effect='hit'|'thunder'|'water'|'heal'|'void'|'revive'|'guard'|'flee'|'sweep';
 export interface Foe {kind:EnemyId;hp:number;phase:number;actions:number}
@@ -22,10 +25,20 @@ export class Battle {
   private rewards:Rewards|null=null;
   constructor(readonly state:State,formation:EnemyId[]|EnemyId,private readonly random:()=>number=Math.random){
     const kinds=typeof formation==='string'?[formation]:formation;
-    if(kinds.length<1||kinds.length>4||kinds.some(kind=>!combatEnemies[kind]))throw new Error('Formation must contain 1–4 defined enemies');
+    if(kinds.length<1||kinds.length>3||kinds.some(kind=>!combatEnemies[kind]))throw new Error('Formation must contain 1–3 defined enemies');
     this.foes=kinds.map(kind=>({kind,hp:combatEnemies[kind].hp,phase:0,actions:0}));
     state.party.forEach((_,i)=>this.clock.set(key('hero',i),.35));
     this.foes.forEach((_,i)=>this.clock.set(key('enemy',i),.05));
+  }
+  snapshot():BattleSnapshot{
+    return structuredClone({version:1,foes:this.foes,heroGauges:this.state.party.map((_,i)=>this.gauge('hero',i)),enemyGauges:this.foes.map((_,i)=>this.gauge('enemy',i)),guards:[...this.guards],attempts:this.escapeAttempts,escaped:this.escaped,queue:this.queue.snapshot(),rewards:this.rewards});
+  }
+  static resume(state:State,saved:BattleSnapshot,random:()=>number=Math.random):Battle{
+    const battle=new Battle(state,saved.foes.map(f=>f.kind),random);
+    saved.foes.forEach((f,i)=>Object.assign(battle.foes[i],f));
+    saved.heroGauges.forEach((value,i)=>battle.clock.set(key('hero',i),value));saved.enemyGauges.forEach((value,i)=>battle.clock.set(key('enemy',i),value));
+    saved.guards.forEach(i=>battle.guards.add(i));saved.queue.forEach(a=>battle.queue.enqueue(key(a.side,a.actor),structuredClone(a)));
+    battle.escapeAttempts=saved.attempts;battle.escaped=saved.escaped;battle.rewards=structuredClone(saved.rewards);return battle;
   }
   get boss():boolean{return this.foes.some(f=>f.kind==='king')}
   get outcome():'win'|'lose'|'escape'|null{
@@ -37,7 +50,7 @@ export class Battle {
   get readyHeroes():number[]{return this.state.party.flatMap((m,i)=>m.hp>0&&this.clock.value(key('hero',i))>=1&&!this.queue.has(key('hero',i))?[i]:[])}
   gauge(side:'hero'|'enemy',index:number):number{return this.clock.value(key(side,index))}
   private speed(side:'hero'|'enemy',index:number):number{
-    if(side==='hero'){const m=this.state.party[index];return heroSpeed[m.id]+m.level-1;}
+    if(side==='hero'){const m=this.state.party[index];return stats(m).speed;}
     const f=this.foes[index];return combatEnemies[f.kind].speed*(f.kind==='king'?bossPhases[f.phase].speed:1);
   }
   tick(deltaMs:number,selecting=false):void{
@@ -48,7 +61,7 @@ export class Battle {
     this.clock.advance(deltaMs,actors,this.state.atbMode==='wait'&&selecting);
     this.foes.forEach((f,i)=>{if(f.hp>0&&this.gauge('enemy',i)>=1)this.queue.enqueue(key('enemy',i),{side:'enemy',actor:i,command:'attack',target:0,item:'bowl'})});
   }
-  count(item:BattleItem):number{return item==='bowl'?this.state.bowls:this.state.inventory[item]}
+  count(item:BattleItem):number{return count(this.state,item)}
   resistance(index:number,element:Element):number{
     const f=this.foes[index];
     if(f.kind==='king'&&f.phase===1){if(element==='water')return .5;if(element==='dark')return 1.5;}
@@ -59,13 +72,7 @@ export class Battle {
     if(!m||m.hp<=0)return '戦闘不能の仲間は行動できない。';
     if(action.command==='magic'&&m.mp<spells[heroes[m.id].spell].cost)return 'MP不足！ 防御でMPを回復できます。';
     if(action.command==='flee'&&this.boss)return 'ボス戦からは逃げられません。';
-    if(action.command==='item'){
-      if(this.count(action.item)<1)return 'そのアイテムは持っていません。';
-      const t=this.state.party[action.target];
-      if(!t)return '対象を選んでください。';
-      if(action.item==='revive'&&t.hp>0)return '目覚めの塩は戦闘不能の仲間に使えます。';
-      if(action.item!=='revive'&&t.hp<=0)return '戦闘不能の仲間には目覚めの塩を使ってください。';
-    }
+    if(action.command==='item')return canUse(this.state,action.item,action.target);
     return null;
   }
   submit(actor:number,command:Command,target=0,item:BattleItem='bowl'):BattleEvent{
@@ -104,23 +111,19 @@ export class Battle {
     }
     if(a.command==='flee'){
       this.escapeAttempts++;
-      const average=this.state.party.filter(t=>t.hp>0).reduce((sum,t)=>sum+heroSpeed[t.id],0)/this.state.party.filter(t=>t.hp>0).length;
+      const average=this.state.party.filter(t=>t.hp>0).reduce((sum,t)=>sum+stats(t).speed,0)/this.state.party.filter(t=>t.hp>0).length;
       const chance=Math.min(.9,Math.max(.35,.6+(average-this.speed('enemy',0))*.02));
       this.escaped=this.escapeAttempts>=3||this.random()<chance;
       return {...base,text:this.escaped?'うまく逃げきった！':'逃げられなかった！',effect:'flee',heroes:[a.actor]};
     }
     if(a.command==='item'){
-      if(a.item==='bowl')this.state.bowls--;else this.state.inventory[a.item]--;
-      const t=this.state.party[a.target];
-      if(a.item==='revive'){
-        t.hp=Math.ceil(maxHp(t)/2);this.clock.set(key('hero',a.target),0);this.guards.delete(a.target);
-      }else if(a.item==='bowl')t.hp=Math.min(maxHp(t),t.hp+80);
-      else t.mp=Math.min(maxMp(t),t.mp+25);
-      return {...base,text:`${heroes[t.id].name}に${battleItems[a.item].name}！ ${a.item==='revive'?'蘇生した！':a.item==='ether'?'MP25回復！':'HP80回復！'}`,effect:a.item==='revive'?'revive':'heal',heroes:[a.target]};
+      const used=useItem(this.state,a.item,a.target);
+      if(a.item==='revive'){this.clock.set(key('hero',a.target),0);this.guards.delete(a.target);}
+      return {...base,...used,effect:a.item==='revive'?'revive':'heal',heroes:[a.target]};
     }
-    let damage=h.atk+(m.level-1)*4+Math.floor(this.random()*7),element:Element='physical',effect:Effect='hit';
+    let damage=stats(m).attack+Math.floor(this.random()*7),element:Element='physical',effect:Effect='hit';
     if(a.command==='magic'){
-      const spell=spells[h.spell];m.mp-=spell.cost;damage=spell.power+(m.level-1)*5;effect=h.spell;
+      const spell=spells[h.spell];m.mp-=spell.cost;damage=spell.power+(m.level-1)*5+stats(m).magic;effect=h.spell;
       if(h.spell==='heal'){
         const targets=this.state.party.flatMap((t,i)=>{if(t.hp<=0)return [];t.hp=Math.min(maxHp(t),t.hp+damage);return [i]});
         return {...base,text:`もふもふヒール！ 生存中の全員のHP${damage}回復！`,effect,heroes:targets,amount:damage};
@@ -153,7 +156,7 @@ export class Battle {
     let total=0;
     for(const i of targets){
       const m=this.state.party[i];
-      const damage=Math.max(1,Math.floor((def.atk+f.phase*3+Math.floor(this.random()*5))*(this.guards.has(i)?.4:1)));
+      const damage=Math.max(1,Math.floor(Math.max(1,def.atk+f.phase*3+Math.floor(this.random()*5)-stats(m).defense)*(this.guards.has(i)?.4:1)));
       m.hp=Math.max(0,m.hp-damage);total+=damage;hits.push(`${heroes[m.id].name} ${damage}`);
       if(m.hp<=0){this.clock.set(key('hero',i),0);this.queue.cancel(key('hero',i));this.guards.delete(i);}
     }
@@ -169,7 +172,7 @@ export class Battle {
     // One guaranteed bowl per victory keeps first-chapter recovery sustainable.
     drops.bowl=(drops.bowl??0)+1;
     this.state.money=Math.min(99999999,this.state.money+money);
-    for(const [item,count] of Object.entries(drops)){if(item==='bowl')this.state.bowls=Math.min(99999999,this.state.bowls+count);else this.state.inventory[item as 'revive'|'ether']=Math.min(99999999,this.state.inventory[item as 'revive'|'ether']+count);}
+    for(const [item,count] of Object.entries(drops)){if(item==='bowl')this.state.bowls=Math.min(99999999,this.state.bowls+count);else this.state.inventory[item as 'revive'|'ether'|'deluxe']=Math.min(99999999,this.state.inventory[item as 'revive'|'ether'|'deluxe']+count);}
     for(const m of this.state.party){m.xp=Math.min(99999999,m.xp+xp);while(m.level<99&&m.xp>=m.level*35){m.xp-=m.level*35;m.level++;m.hp=maxHp(m);m.mp=maxMp(m);levels.push(`${heroes[m.id].name} Lv.${m.level}`);}}
     this.rewards={xp,money,drops,levels};return this.rewards;
   }
