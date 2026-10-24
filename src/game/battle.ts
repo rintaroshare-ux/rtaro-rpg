@@ -40,7 +40,7 @@ export class Battle {
     saved.guards.forEach(i=>battle.guards.add(i));saved.queue.forEach(a=>battle.queue.enqueue(key(a.side,a.actor),structuredClone(a)));
     battle.escapeAttempts=saved.attempts;battle.escaped=saved.escaped;battle.rewards=structuredClone(saved.rewards);return battle;
   }
-  get boss():boolean{return this.foes.some(f=>f.kind==='king')}
+  get boss():boolean{return this.foes.some(f=>(f.kind==='king'||combatEnemies[f.kind].boss))}
   get outcome():'win'|'lose'|'escape'|null{
     if(this.escaped)return 'escape';
     if(this.state.party.every(m=>m.hp<=0))return 'lose';
@@ -51,7 +51,7 @@ export class Battle {
   gauge(side:'hero'|'enemy',index:number):number{return this.clock.value(key(side,index))}
   private speed(side:'hero'|'enemy',index:number):number{
     if(side==='hero'){const m=this.state.party[index];return stats(m).speed;}
-    const f=this.foes[index];return combatEnemies[f.kind].speed*(f.kind==='king'?bossPhases[f.phase].speed:1);
+    const f=this.foes[index];return combatEnemies[f.kind].speed*((f.kind==='king'||combatEnemies[f.kind].boss)?bossPhases[f.phase].speed:1);
   }
   tick(deltaMs:number,selecting=false):void{
     if(this.outcome)return;
@@ -140,8 +140,8 @@ export class Battle {
     return {...base,text:`${a.command==='magic'?spells[h.spell].name:h.name+'の攻撃'}！ ${combatEnemies[f.kind].name}に${damage}！${multiplier>1?' 弱点！':multiplier<1?' 耐性あり。':''}${phase}`,effect,enemies:[index],amount:damage};
   }
   private updateBossPhase(f:Foe):string{
-    if(f.kind!=='king'||f.hp<=0)return '';
-    const ratio=f.hp/combatEnemies.king.hp;
+    if((f.kind!=='king'&&!combatEnemies[f.kind].boss)||f.hp<=0)return '';
+    const ratio=f.hp/combatEnemies[f.kind].hp;
     const phase=Math.max(f.phase,ratio>bossPhases[0].threshold?0:ratio>bossPhases[1].threshold?1:2);
     if(phase===f.phase)return '';
     f.phase=phase;f.actions=0;return ` 【形態${phase+1}：${bossPhases[phase].name}】`;
@@ -149,7 +149,7 @@ export class Battle {
   private enemyAction(index:number):BattleEvent{
     const f=this.foes[index],def=combatEnemies[f.kind];
     const alive=this.state.party.flatMap((m,i)=>m.hp>0?[i]:[]);
-    const pattern=f.kind==='king'?bossPhases[f.phase].pattern:['attack'];
+    const pattern=(f.kind==='king'||combatEnemies[f.kind].boss)?bossPhases[f.phase].pattern:['attack'];
     const command=pattern[f.actions++%pattern.length];
     const targets=command==='sweep'?alive:[alive[Math.floor(this.random()*alive.length)]];
     const hits:string[]=[];

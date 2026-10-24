@@ -11,7 +11,7 @@ try{
  const ready=()=>page.waitForFunction(()=>window.__testGame?.scene.isActive('Title'));
  await page.goto(process.env.GAME_URL||'http://127.0.0.1:5173');await ready();
  const textures=await page.evaluate(async()=>{const {sceneAssets}=await import('/src/graphics/spec.ts');return sceneAssets.map(a=>{const image=window.__testGame.textures.get(a.key).getSourceImage();return {key:a.key,png:image instanceof HTMLImageElement,width:image.width,height:image.height,expected:[a.width,a.height]};});});
- assert.equal(textures.length,23);for(const t of textures){assert.ok(t.png,t.key+' should use a PNG');assert.deepEqual([t.width,t.height],t.expected);}
+ assert.equal(textures.length,24);for(const t of textures){assert.ok(t.png,t.key+' should use a PNG');assert.deepEqual([t.width,t.height],t.expected);}
  await page.evaluate(async()=>{const {state,member}=await import('/src/game/state.ts');state.party=['rintaro','marmot','fugu','vanilla'].map(id=>member(id,3));state.flags=['intro','message'];state.map='park';state.x=680;state.y=325;window.__testGame.scene.getScene('Title').scene.start('Field');});
  await page.waitForFunction(()=>window.__testGame.scene.isActive('Field'));await frame();
  const bowls=await page.evaluate(async()=>(await import('/src/game/state.ts')).state.bowls);
@@ -24,5 +24,5 @@ try{
  await page.locator('#quick-save').click();const kinds=await page.evaluate(()=>window.__testGame.scene.getScene('Battle').battle.foes.map(f=>f.kind));await page.reload();await ready();await press('ArrowDown');await press('Enter');await page.waitForFunction(()=>window.__testGame.scene.isActive('Battle'));assert.deepEqual(await page.evaluate(()=>window.__testGame.scene.getScene('Battle').battle.foes.map(f=>f.kind)),kinds);
  await page.evaluate(async()=>{const {state}=await import('/src/game/state.ts');state.resumeBattle=null;window.__testGame.scene.getScene('Battle').scene.restart({formation:['king']});});await frame();await page.waitForFunction(()=>window.__testGame.scene.getScene('Battle').images[0]?.texture.key==='king');
  assert.equal(await page.evaluate(()=>window.__testGame.scene.getScene('Battle').images[0].displayWidth),96);await page.screenshot({path:'diagnostics/phase4-boss.png'});assert.deepEqual(errors,[]);
- console.log('Phase 4: 23 PNGs, all sixteen enemy battle sprites, boss art, treasure once-only/save/reload, new-enemy battle resume passed');
+ console.log('Phase 4: 24 PNGs, all sixteen enemy battle sprites, boss art, treasure once-only/save/reload, new-enemy battle resume passed');
 }finally{await browser.close();}

@@ -1,7 +1,7 @@
 import {stats} from './economy/stats';
 import {emptyEquipment,isGear,gear,type Gear,type Equipment,type GearId} from './economy/catalog';
 import {readBattleSnapshot,type BattleSnapshot} from './combat/snapshot';
-import { heroes, order, SAVE_KEY, AUTO_SAVE_KEY, PREVIOUS_SAVE_KEY, LEGACY_SAVE_KEY, type HeroId, type MapId } from './data';
+import { heroes, maps, SAVE_KEY, AUTO_SAVE_KEY, PREVIOUS_SAVE_KEY, LEGACY_SAVE_KEY, type HeroId, type MapId } from './data';
 export interface Member {id:HeroId;hp:number;mp:number;level:number;xp:number;equipment:Equipment}
 export type AtbMode = 'wait' | 'active';
 export interface State {version:3;map:MapId;x:number;y:number;party:Member[];flags:string[];defeated:string[];bowls:number;minutes:number;money:number;inventory:{revive:number;ether:number;deluxe:number};atbMode:AtbMode;gearBag:Partial<Record<GearId,number>>;resumeBattle:BattleSnapshot|null}
@@ -28,7 +28,7 @@ const strings=(v:unknown):v is string[]=>Array.isArray(v)&&v.length<=10000&&v.ev
 export function migrateSave(raw:unknown):State|null{
   if(!record(raw)||(raw.version!==1&&raw.version!==2&&raw.version!==3))return null;
   const v=raw;
-  if(typeof v.map!=='string'||!order.includes(v.map as MapId)||typeof v.x!=='number'||!Number.isFinite(v.x)||v.x<24||v.x>936||typeof v.y!=='number'||!Number.isFinite(v.y)||v.y<46||v.y>510)return null;
+  if(typeof v.map!=='string'||!Object.hasOwn(maps,v.map)||typeof v.x!=='number'||!Number.isFinite(v.x)||v.x<24||v.x>936||typeof v.y!=='number'||!Number.isFinite(v.y)||v.y<46||v.y>510)return null;
   if(!amount(v.bowls)||typeof v.minutes!=='number'||!Number.isFinite(v.minutes)||v.minutes<0||!strings(v.flags)||!strings(v.defeated))return null;
   if(!Array.isArray(v.party)||v.party.length<1||v.party.length>4)return null;
   const ids:HeroId[]=['rintaro','marmot','fugu','vanilla'];

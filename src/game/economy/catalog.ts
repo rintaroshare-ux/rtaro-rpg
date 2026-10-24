@@ -19,6 +19,9 @@ export const gear={
  windPin:{name:'追い風のピン',slot:'accessory',price:75,allowed:heroIds,bonuses:{speed:3}},
  mofuBadge:{name:'もふもふバッジ',slot:'accessory',price:90,allowed:heroIds,bonuses:{hp:25,mp:8}},
  prismRing:{name:'潮色のリング',slot:'accessory',price:80,allowed:['marmot','fugu','vanilla'],bonuses:{magic:5,mp:8}},
+ skyRod:{name:'雲渡りの杖',slot:'weapon',price:240,allowed:heroIds,bonuses:{attack:12,magic:14}},
+ auroraCoat:{name:'オーロラコート',slot:'armor',price:330,allowed:heroIds,bonuses:{defense:15,hp:45}},
+ promiseRing:{name:'おかえりの指輪',slot:'accessory',price:380,allowed:heroIds,bonuses:{magic:16,mp:25,speed:4}},
 } as const satisfies Record<string,Gear>;
 export type GearId=keyof typeof gear;
 export type StockId=ConsumableId|GearId;

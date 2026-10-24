@@ -1,3 +1,4 @@
+import {resumeScene} from '../game/campaign';
 import type {MobileMenu} from '../input/mobileMenu';
 import Phaser from 'phaser';
 import {music} from '../audio/music';
@@ -51,7 +52,7 @@ export class Title extends Phaser.Scene {
       }
       if (!confirmKey(e)) return;
       if (this.choice === 0) { reset(); this.scene.start('Field'); }
-      else if (load(this.choice===2?'auto':'manual')) this.scene.start(state.resumeBattle ? 'Battle' : state.flags.includes('clear') ? 'Clear' : 'Field');
+      else if (load(this.choice===2?'auto':'manual')) this.scene.start(resumeScene(state));
       else this.notice.setText('セーブデータがありません。「はじめから」を選んでください。');
     });
   }

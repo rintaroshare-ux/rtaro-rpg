@@ -1,3 +1,4 @@
+import {campaignMaps,campaignEnemyNames,type JourneyMap} from './campaignData';
 import {plushNames} from './bestiary';
 export const WIDTH=640, HEIGHT=360, SPEED=115, SAVE_KEY='rintaro.chapter1.v3';
 export const AUTO_SAVE_KEY='rintaro.chapter1.autosave.v3';
@@ -12,13 +13,13 @@ export const heroes:Record<HeroId,{name:string;hp:number;mp:number;atk:number;sp
  vanilla:{name:'シンガポール太郎',hp:135,mp:36,atk:23,spell:'void',color:0xa18bd4}
 };
 export const spells:Record<SpellId,{name:string;cost:number;power:number;color:number}>={thunder:{name:'サンダー',cost:5,power:37,color:0xffdf70},water:{name:'ウォーターバースト',cost:6,power:43,color:0x69d3ff},heal:{name:'もふもふヒール',cost:7,power:65,color:0x8ff0a1},void:{name:'亜空間攻撃',cost:8,power:58,color:0x9676d9}};
-export const enemies={...plushNames,king:{name:'モフモフキング',texture:'king'}};
+export const enemies={...plushNames,...campaignEnemyNames,king:{name:'モフモフキング',texture:'king'}};
 export type EnemyId=keyof typeof enemies;
-export type MapId='home'|'park'|'market'|'station';
+export type MapId='home'|'park'|'market'|'station'|JourneyMap;
 export interface Person {x:number;y:number;name:string;texture:string;lines:string[];join?:HeroId;event?:'boss'|'shop'|'chest';shop?:'items'|'equipment';chestId?:string;reward?:{money?:number;bowls?:number;ether?:number}}
 export interface MapDef {name:string;subtitle:string;color:number;path:number;people:Person[];buildings:{x:number;y:number;w:number;h:number;label:string;color:number}[];}
 export const order:MapId[]=['home','park','market','station'];
-export const maps:Record<MapId,MapDef>={
+export const maps:Record<MapId,MapDef>={...campaignMaps,
  home:{name:'R太郎の家',subtitle:'冒険は、いつも「ただいま」の場所から。',color:0x80b98a,path:0xe6cf9e,people:[{x:270,y:270,name:'ママ',texture:'mom',lines:['パパ、ノルウェーでお仕事が大変みたい。','この「伝説の海鮮丼」を届けてあげて。冷めない魔法つきよ！','したく金100Gは一度だけよ。まずは東の公園へ！']},{x:420,y:150,name:'ベッド',texture:'bed',lines:['ふかふかのベッドで、ひと休み。','みんなのHPとMPが全回復した！']}],buildings:[{x:170,y:85,w:180,h:130,label:'R太郎の家',color:0xe7ab82},{x:610,y:100,w:180,h:120,label:'おとなりさん',color:0xe5cf83}]},
  park:{name:'こすぎの公園',subtitle:'ぬいぐるみたちが、なんだかそわそわ。',color:0x78b989,path:0xe4d3a3,people:[{x:680,y:290,name:'公園の宝箱',texture:'chest',event:'chest',chestId:'park-supplies',reward:{bowls:2},lines:['海鮮丼を2個見つけた！']},{x:220,y:280,name:'マーモット',texture:'marmot',join:'marmot',lines:['た、助けて！ ぬいぐるみが急に動きだしたんだ。','ぼくはマーモット。ふわふわの回復なら任せて！','マーモットが仲間になった！ 次は商店街へ行こう。']},{x:520,y:300,name:'公園のおじさん',texture:'old',lines:['草地を歩くと、ぬいぐるみが現れるよ。道や人のそばは安全だ。','魔法はMPを使う。防御するとMPが3回復するぞ。','商店街のグアムバードが、不思議な水を研究しているらしい。']}],buildings:[{x:395,y:70,w:160,h:110,label:'こすぎの池',color:0x65bacc}]},
  market:{name:'こすぎ商店街',subtitle:'本日のおすすめ：勇気、ひとつ。',color:0x99b6a0,path:0xe3c6a0,people:[{x:270,y:290,name:'グアムバード',texture:'fugu',join:'fugu',lines:['ぼくはグアムバード！ 青い羽と水魔法で旅を応援するよ。','ノルウェーへ？ おいしい冒険の予感がするね。','グアムバードが仲間になった！ 駅前で不思議な人が待っている。']},{x:540,y:290,name:'魚屋さん',texture:'fishmonger',event:'shop',shop:'items',lines:['海鮮丼、持っていきな！ 冒険する子は大歓迎だ。','海鮮丼を3個もらった！ HPが80回復するよ。']},{x:700,y:290,name:'旅道具屋',texture:'merchant',event:'shop',shop:'equipment',lines:['駅前のモフモフキングが、ぬいぐるみを操っているんだ。','4人そろったら駅前広場のベルを調べよう。回復と防御も忘れずにね。']}],buildings:[{x:160,y:80,w:175,h:140,label:'さかなの ふくふく',color:0xe99b88},{x:390,y:80,w:160,h:140,label:'こすぎベーカリー',color:0xe8c66c},{x:620,y:80,w:160,h:140,label:'喫茶 しおかぜ',color:0x94bcce}]},

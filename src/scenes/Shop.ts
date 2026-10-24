@@ -1,3 +1,4 @@
+import {isJourneyMap} from '../game/campaignData';
 import type {MobileMenu} from '../input/mobileMenu';
 import Phaser from 'phaser';
 import {state,save} from '../game/state';
@@ -51,5 +52,5 @@ ${detail}`,back:()=>this.close(),tabs:[{id:'buy',label:'買う',selected:this.si
   if(['KeyQ','KeyE'].includes(e.code)){this.quantity=this.quantity===1?5:1;this.draw();}
   if(confirmKey(e))this.transact();
  }
- private close():void{this.scene.resume('Field');this.scene.stop();}
+ private close():void{this.scene.resume(isJourneyMap(state.map)?'Campaign':'Field');this.scene.stop();}
 }

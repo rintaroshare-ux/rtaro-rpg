@@ -1,3 +1,5 @@
+import {isJourneyMap} from '../game/campaignData';
+import {checkpoint,recordCampaignVictory} from '../game/campaign';
 import type {MobileMenu} from '../input/mobileMenu';
 import Phaser from 'phaser';
 import {heroes,spells,type EnemyId} from '../game/data';
@@ -54,9 +56,9 @@ export class BattleScene extends Phaser.Scene{
     this.battle.foes.forEach((f,i)=>{
       const {x,y}=enemyPoint(i,this.battle.foes.length);
       this.points.push({x,y});
-      this.images.push(this.add.image(x,y,combatEnemies[f.kind].texture).setDisplaySize(f.kind==='king'?96:48,f.kind==='king'?96:48).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.tapEnemy(i)));
+      this.images.push(this.add.image(x,y,combatEnemies[f.kind].texture).setDisplaySize((f.kind==='king'||combatEnemies[f.kind].boss)?96:48,(f.kind==='king'||combatEnemies[f.kind].boss)?96:48).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.tapEnemy(i)));
       this.tweens.add({targets:this.images[i],y:y-2,duration:850+i*120,yoyo:true,repeat:-1});
-      this.enemyLabels.push(label(this,x,y+(f.kind==='king'?54:23),'',8).setOrigin(.5,0).setLineSpacing(0));
+      this.enemyLabels.push(label(this,x,y+((f.kind==='king'||combatEnemies[f.kind].boss)?54:23),'',8).setOrigin(.5,0).setLineSpacing(0));
     });
     state.party.forEach((m,i)=>{
       const point=partyPoint(i);
@@ -120,8 +122,8 @@ export class BattleScene extends Phaser.Scene{
       if(f.kind==='king')this.images[i].setTint([0xffffff,0xffe5bc,0xffc6b2][f.phase]);
       this.images[i].setAlpha(f.hp>0?1:.15);
       this.enemyLabels[i].setText(`${this.selection==='enemy'&&this.target===i?'> ':''}${def.name}\nHP ${f.hp}/${def.hp}`);
-      this.bars.fillStyle(0x142e39).fillRect(p.x-42,p.y+(f.kind==='king'?76:42),84,4).fillStyle(0xdda96e).fillRect(p.x-42,p.y+(f.kind==='king'?76:42),84*f.hp/def.hp,4);
-      this.bars.fillStyle(0x192f3a).fillRect(p.x-42,p.y+(f.kind==='king'?82:47),84,2).fillStyle(0xb6cbd0).fillRect(p.x-42,p.y+(f.kind==='king'?82:47),84*this.battle.gauge('enemy',i),2);
+      this.bars.fillStyle(0x142e39).fillRect(p.x-42,p.y+((f.kind==='king'||combatEnemies[f.kind].boss)?76:42),84,4).fillStyle(0xdda96e).fillRect(p.x-42,p.y+((f.kind==='king'||combatEnemies[f.kind].boss)?76:42),84*f.hp/def.hp,4);
+      this.bars.fillStyle(0x192f3a).fillRect(p.x-42,p.y+((f.kind==='king'||combatEnemies[f.kind].boss)?82:47),84,2).fillStyle(0xb6cbd0).fillRect(p.x-42,p.y+((f.kind==='king'||combatEnemies[f.kind].boss)?82:47),84*this.battle.gauge('enemy',i),2);
     });
     state.party.forEach((m,i)=>{
       this.stats[i].setText(`${this.actor===i?'>':' '} ${heroes[m.id].name}\n   HP ${m.hp}/${maxHp(m)}  MP ${m.mp}/${maxMp(m)}${m.hp===0?' [戦闘不能]':''}`).setFontSize(9).setLineSpacing(0);
@@ -131,8 +133,8 @@ export class BattleScene extends Phaser.Scene{
       this.bars.fillStyle(0x122e38).fillRect(541,y,78,8).fillStyle(m.hp===0?0x677a7c:gauge>=1?0xffda80:0x7ebcbe).fillRect(541,y,78*gauge,8);
       this.bars.lineStyle(1,0x849c99).strokeRect(541,y,78,8);
     });
-    const boss=this.battle.foes.find(f=>f.kind==='king');
-    if(boss&&!this.result)this.heading.setText(`モフモフキング / 形態${boss.phase+1}「${bossPhases[boss.phase].name}」`);
+    const boss=this.battle.foes.find(f=>f.kind==='king'||combatEnemies[f.kind].boss);
+    if(boss&&!this.result)this.heading.setText(`${combatEnemies[boss.kind].name} / 形態${boss.phase+1}「${boss.kind==='king'?bossPhases[boss.phase].name:boss.kind==='dad'?['まだ帰れない','ひとりで抱える','おかえりの声'][boss.phase]:['行く手の番人','本気の番人','最後のひとふんばり'][boss.phase]}」`);
     this.refreshRows();
     if(this.result){this.menuTitle.setText(this.battle.outcome==='win'?'VICTORY':this.battle.outcome==='escape'?'ESCAPED':'もう一度、挑もう');this.commands.setText('Z / ENTER で進む');return;}
     if(this.actor===null){this.menuTitle.setText('ATBがたまるまで待機…');this.commands.setText('速い仲間ほどゲージが早くたまる。\n防御で軽減・MP+3。\n道具で蘇生やMP回復もできます。');return;}
@@ -232,6 +234,7 @@ export class BattleScene extends Phaser.Scene{
   }
   private finish():void{
     state.resumeBattle=null;
+    if(isJourneyMap(state.map)){if(this.battle.outcome==='lose')checkpoint(state);if(this.battle.outcome==='win')recordCampaignVictory(state,this.battle.foes.map(f=>f.kind));const saved=save();this.scene.start('Campaign',{notice:saved?undefined:'保存できませんでした。ゲームは続けられます。'});return;}
     if(this.battle.outcome==='lose'){
       restore();state.map='home';state.x=260;state.y=330;state.bowls=Math.max(3,state.bowls);state.inventory.revive=Math.max(1,state.inventory.revive);state.inventory.ether=Math.max(1,state.inventory.ether);
     }

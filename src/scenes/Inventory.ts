@@ -1,3 +1,4 @@
+import {isJourneyMap} from '../game/campaignData';
 import type {MobileMenu,MobileAction} from '../input/mobileMenu';
 import Phaser from 'phaser';
 import {state,save} from '../game/state';
@@ -60,5 +61,5 @@ ${this.notice}`,back:()=>this.close(),tabs,actions};
   if(['ArrowUp','ArrowDown','KeyW','KeyS'].includes(e.code)){const n=this.tab==='items'?4:this.candidates().length;this.index=(this.index+(['ArrowUp','KeyW'].includes(e.code)?n-1:1))%n;this.draw();}
   if(confirmKey(e))this.apply();
  }
- private close():void{this.scene.resume('Field');this.scene.stop();}
+ private close():void{this.scene.resume(isJourneyMap(state.map)?'Campaign':'Field');this.scene.stop();}
 }
