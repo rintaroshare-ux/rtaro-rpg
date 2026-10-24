@@ -9,7 +9,7 @@
 | R太郎 | `public/assets/characters/rtaro.png` | `rintaro`（互換用） |
 | マーモット | `public/assets/characters/marmot.png` | `marmot` |
 | ふぐ | `public/assets/characters/fugu.png` | `fugu` |
-| ヴァニラ・アイス | `public/assets/characters/vanilla.png` | `vanilla` |
+| シンガポール太郎 | `public/assets/characters/vanilla.png` | `vanilla` |
 | 武蔵小杉タイルセット | `public/assets/tilesets/kosugi.png` | `kosugi-tiles` |
 
 Viteの`BASE_URL`を使ってロードします。GitHub Pagesのサブディレクトリにも対応します。PNGはリポジトリに含めてください。ファイル名は小文字・完全一致です。
@@ -74,3 +74,5 @@ PNGを含む通常配信には外部画像サーバーや外部APIは不要で�
 加入した仲間は`PartyView`がフィールド上で隊列表示します。移動履歴から30px間隔の追従先を求め、向きに応じて各自のスプライトシートをアニメーションします。停止・会話・メニューでは待機フレームになります。見た目だけの追従で、物理衝突や敵・NPCへの接触判定は主人公だけが担当します。追加の位置情報はセーブに保存しません。
 
 商店街は既存タイルのひさしを店舗ごとに配置し、家や店舗へのアプローチ、駅前広場と入口の階段を追加しています。建物、道、木、看板、店先は独立したレイヤーです。
+
+シンガポール太郎の内部ID・テクスチャキー・PNG名は、既存セーブと素材参照の互換性のため `vanilla` を維持します。表示名はキャラクター定義から取得します。添付のぬいぐるみ写真は公開アセットに含めません。
